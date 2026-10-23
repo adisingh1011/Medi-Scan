@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan - Scan, Stock, Deliver</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- React & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <style>
+        html, body {
+            top: 0 !important;
+            position: static !important;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .goog-te-banner-frame, 
+        .goog-te-balloon-frame,
+        .goog-te-banner,
+        iframe.skiptranslate,
+        .goog-tooltip,
+        .goog-tooltip:hover {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            width: 0 !important;
+        }
+
+        #google_translate_element {
+            display: none !important;
+        }
+
+        .bg-pharmacy {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12)), url('./landing.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            background: rgba(255, 255, 255, 0.95);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 102, 204, 0.2);
+            border-color: #0284c7;
+        }
+
+        .glass-header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .ticker-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .ticker-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: tickerAnimation 14s linear infinite;
+        }
+
+        @keyframes tickerAnimation {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .animate-pop {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-pharmacy min-h-screen flex flex-col justify-between text-slate-800">
+
+    <div id="google_translate_element"></div>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const SUPABASE_URL = 'https://vtnykwrkvujsfergxkrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_VTPXvhKLIxazMFfcMSoT4w_tPvsrD3Z';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Bharat ki 22 official legal languages + English
+        const indianLanguages = [
+            { code: 'en', name: 'English' },
+            { code: 'hi', name: 'हिंदी (Hindi)' },
+            { code: 'bn', name: 'বাংলা (Bengali)' },
+            { code: 'te', name: 'తెలుగు (Telugu)' },
+            { code: 'mr', name: 'मराठी (Marathi)' },
+            { code: 'ta', name: 'தமிழ் (Tamil)' },
+            { code: 'ur', name: 'اردو (Urdu)' },
+            { code: 'gu', name: 'ગુજરાતી (Gujarati)' },
+            { code: 'kn', name: 'ಕನ್ನಡ (Kannada)' },
+            { code: 'or', name: 'ଓଡ଼ିଆ (Odia)' },
+            { code: 'pa', name: 'ਪੰਜਾਬੀ (Punjabi)' },
+            { code: 'ml', name: 'മലയാളം (Malayalam)' },
+            { code: 'as', name: 'অসমীয়া (Assamese)' },
+            { code: 'ma', name: 'मैथिली (Maithili)' },
+            { code: 'sa', name: 'संस्कृतम् (Sanskrit)' },
+            { code: 'ne', name: 'नेपाली (Nepali)' },
+            { code: 'sd', name: 'સિંધિ (Sindhi)' },
+            { code: 'ks', name: 'कश्मीरी (Kashmiri)' },
+            { code: 'kok', name: 'कोंकणी (Konkani)' },
+            { code: 'doi', name: 'डोगरी (Dogri)' },
+            { code: 'mni', name: 'मणिपुरी (Manipuri)' },
+            { code: 'sat', name: 'સંથાલી (Santali)' },
+            { code: 'brx', name: 'बोडो (Bodo)' }
+        ];
+
+        function MediScanApp() {
+            const [selectedRole, setSelectedRole] = useState(null);
+            const [authMode, setAuthMode] = useState('register'); 
+            const [alertMsg, setAlertMsg] = useState({ type: '', text: '' });
+            const [currentLang, setCurrentLang] = useState('en');
+
+            const [showPassword, setShowPassword] = useState(false);
+            const [showVerifyPassword, setShowVerifyPassword] = useState(false);
+
+            const [formData, setFormData] = useState({
+                fullName: '',
+                mobileNo: '',
+                password: '',
+                verifyPassword: '',
+                drugLicense: ''
+            });
+
+            useEffect(() => {
+                const cookies = document.cookie.split(';');
+                const googTransCookie = cookies.find(c => c.trim().startsWith('googtrans='));
+                if (googTransCookie) {
+                    const langCode = googTransCookie.split('/').pop();
+                    if (langCode && indianLanguages.some(l => l.code === langCode)) {
+                        setCurrentLang(langCode);
+                    }
+                }
+            }, []);
+
+            const openAuthModal = (role) => {
+                setSelectedRole(role);
+                setAuthMode('register');
+                setShowPassword(false);
+                setShowVerifyPassword(false);
+                setAlertMsg({ type: '', text: '' });
+                setFormData({
+                    fullName: '',
+                    mobileNo: '',
+                    password: '',
+                    verifyPassword: '',
+                    drugLicense: ''
+                });
+            };
+
+            const closeModal = () => {
+                setSelectedRole(null);
+            };
+
+            const handleNameChange = (e) => {
+                const value = e.target.value;
+                if (/^[a-zA-A\s]*$/.test(value)) {
+                    setFormData({ ...formData, fullName: value });
+                }
+            };
+
+            const handleMobileChange = (e) => {
+                const value = e.target.value;
+                if (/^\d*$/.test(value) && value.length <= 10) {
+                    setFormData({ ...formData, mobileNo: value });
+                }
+            };
+
+            const handleAuthSubmit = async (e) => {
+                e.preventDefault();
+                setAlertMsg({ type: '', text: '' });
+
+                if (formData.mobileNo.length !== 10) {
+                    setAlertMsg({ type: 'error', text: 'Kripya ek valid 10-digit mobile number enter karein!' });
+                    return;
+                }
+
+                const tableName = selectedRole === 'customer' ? 'customers' : 'medical_stores';
+
+                if (authMode === 'register') {
+                    if (formData.password !== formData.verifyPassword) {
+                        setAlertMsg({ type: 'error', text: 'Passwords match nahi kar rahe hain!' });
+                        return;
+                    }
+
+                    const payload = selectedRole === 'customer' 
+                        ? { full_name: formData.fullName, mobile_no: formData.mobileNo, password: formData.password }
+                        : { store_name: formData.fullName, mobile_no: formData.mobileNo, drug_license: formData.drugLicense, password: formData.password };
+
+                    const { error } = await supabase.from(tableName).insert([payload]);
+
+                    if (error) {
+                        if (error.code === '23505') {
+                            setAlertMsg({ type: 'error', text: 'Yeh mobile number pehle se registered hai!' });
+                        } else {
+                            setAlertMsg({ type: 'error', text: 'Database Error: ' + error.message });
+                        }
+                    } else {
+                        const roleName = selectedRole === 'customer' ? 'Customer' : 'Medical Store';
+                        setAlertMsg({ type: 'success', text: `Registration successful as ${roleName}!` });
+                        
+                        if (selectedRole === 'store') {
+                            sessionStorage.setItem('medical_store_user', JSON.stringify({
+                                store_name: formData.fullName,
+                                drug_license: formData.drugLicense,
+                                mobile_no: formData.mobileNo
+                            }));
+                        } else if (selectedRole === 'customer') {
+                            sessionStorage.setItem('customer_user', JSON.stringify({
+                                full_name: formData.fullName,
+                                mobile_no: formData.mobileNo
+                            }));
+                        }
+
+                        setTimeout(() => {
+                            setAuthMode('login');
+                            setAlertMsg({ type: '', text: '' });
+                        }, 1500);
+                    }
+
+                } else {
+                    // Login Verification against Database
+                    const { data, error } = await supabase
+                        .from(tableName)
+                        .select('*')
+                        .eq('mobile_no', formData.mobileNo)
+                        .eq('password', formData.password)
+                        .single();
+
+                    if (error || !data) {
+                        setAlertMsg({ 
+                            type: 'error', 
+                            text: 'Please check your mobile no. and password carefully.' 
+                        });
+                    } else {
+                        setAlertMsg({ 
+                            type: 'success', 
+                            text: `Login successful! Redirecting to dashboard...` 
+                        });
+
+                        if (selectedRole === 'store') {
+                            sessionStorage.setItem('medical_store_user', JSON.stringify({
+                                store_name: data.store_name,
+                                drug_license: data.drug_license,
+                                mobile_no: data.mobile_no,
+                                id: data.id
+                            }));
+                        } else if (selectedRole === 'customer') {
+                            sessionStorage.setItem('customer_user', JSON.stringify({
+                                full_name: data.full_name,
+                                mobile_no: data.mobile_no,
+                                id: data.id
+                            }));
+                        }
+
+                        setTimeout(() => {
+                            if (selectedRole === 'store') {
+                                window.location.href = 'Medical.html';
+                            } else {
+                                window.location.href = 'Customer.html'; // Customer login hone par Customer.html open hoga[cite: 18]
+                            }
+                        }, 1200);
+                    }
+                }
+            };
+
+            const changeLanguage = (langCode) => {
+                setCurrentLang(langCode);
+                document.cookie = `googtrans=/en/${langCode}; path=/; domain=${window.location.hostname}`;
+                document.cookie = `googtrans=/en/${langCode}; path=/`;
+
+                const selectElement = document.querySelector('.goog-te-combo');
+                if (selectElement) {
+                    selectElement.value = langCode;
+                    selectElement.dispatchEvent(new Event('change'));
+                } else {
+                    window.location.reload();
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col justify-between relative">
+                    <header className="glass-header w-full px-4 lg:px-8 py-3.5 flex items-center justify-between shadow-sm sticky top-0 z-40">
+                        <div className="flex items-center space-x-3 shrink-0">
+                            <div className="bg-sky-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+                                <i className="fa-solid fa-heart-pulse text-xl"></i>
+                            </div>
+                            <span className="text-2xl font-bold tracking-tight text-slate-900">
+                                Medi<span className="text-sky-600">Scan</span>
+                            </span>
+                        </div>
+
+                        <div className="hidden md:flex flex-1 justify-center px-6">
+                            <div className="text-slate-700 font-medium italic text-xs md:text-sm bg-sky-50/80 px-4 py-1.5 rounded-full border border-sky-100 shadow-inner ticker-container flex items-center">
+                                <div className="ticker-text">
+                                    MediScan: Your Bridge to Health and Medicines - <span className="font-semibold text-slate-800">Scan, Stock, Deliver.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center space-x-2 shrink-0">
+                            <div className="relative flex items-center bg-white/90 border border-slate-200 rounded-xl px-3 py-1.5 shadow-sm hover:border-sky-400 transition-colors">
+                                <select 
+                                    value={currentLang}
+                                    onChange={(e) => changeLanguage(e.target.value)}
+                                    className="bg-transparent text-xs font-semibold text-slate-800 focus:outline-none cursor-pointer pr-1"
+                                >
+                                    {indianLanguages.map((lang) => (
+                                        <option key={lang.code} value={lang.code}>
+                                            {lang.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="flex-grow flex items-center justify-center px-6 lg:px-20 py-12">
+                        <div className="w-full max-w-sm glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl text-center border border-white/60 my-auto">
+                            <div className="mb-6">
+                                <span className="bg-sky-500/10 text-sky-800 font-semibold text-xs tracking-wider uppercase px-3 py-1 rounded-full border border-sky-300/40">
+                                    Portal Access
+                                </span>
+                                <h2 className="text-2xl font-bold text-slate-900 mt-3 tracking-tight">SELECT YOUR ROLE</h2>
+                                <p className="text-slate-600 text-xs mt-1">Choose account type to get started</p>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <button 
+                                    onClick={() => openAuthModal('customer')}
+                                    className="glass-card p-5 rounded-2xl flex flex-col items-center justify-center text-slate-800 hover:text-sky-700 group focus:outline-none focus:ring-2 focus:ring-sky-500"
+                                >
+                                    <div className="w-14 h-14 bg-sky-100/90 rounded-2xl flex items-center justify-center mb-3 group-hover:bg-sky-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                                        <i className="fa-solid fa-user text-2xl text-sky-600 group-hover:text-white"></i>
+                                    </div>
+                                    <span className="font-bold text-xs sm:text-sm tracking-tight">AS A CUSTOMER</span>
+                                </button>
+
+                                <button 
+                                    onClick={() => openAuthModal('store')}
+                                    className="glass-card p-5 rounded-2xl flex flex-col items-center justify-center text-slate-800 hover:text-emerald-700 group focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                >
+                                    <div className="w-14 h-14 bg-emerald-100/90 rounded-2xl flex items-center justify-center mb-3 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-300 shadow-sm">
+                                        <i className="fa-solid fa-clinic-medical text-2xl text-emerald-600 group-hover:text-white"></i>
+                                    </div>
+                                    <span className="font-bold text-xs sm:text-sm tracking-tight">AS A MEDICAL STORE</span>
+                                </button>
+                            </div>
+                        </div>
+                    </main>
+
+                    <footer className="glass-header w-full py-3 text-center text-slate-600 text-xs font-medium">
+                        &copy; MediScan Health Tech. Smart Stock & Prescription Verification System.
+                    </footer>
+
+                    {selectedRole && (
+                        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-pop">
+                            <div className="bg-white/95 rounded-3xl max-w-md w-full p-7 shadow-2xl border border-slate-100 relative">
+                                <button 
+                                    onClick={closeModal}
+                                    className="absolute top-5 right-5 text-slate-400 hover:text-slate-700 w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors"
+                                >
+                                    <i className="fa-solid fa-xmark text-lg"></i>
+                                </button>
+
+                                <div className="flex items-center space-x-3 mb-6">
+                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white text-xl shadow-md ${
+                                        selectedRole === 'customer' ? 'bg-sky-600' : 'bg-emerald-600'
+                                    }`}>
+                                        <i className={`fa-solid ${selectedRole === 'customer' ? 'fa-user' : 'fa-clinic-medical'}`}></i>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-bold text-slate-900">
+                                            {selectedRole === 'customer' ? 'Customer Portal' : 'Medical Store Portal'}
+                                        </h3>
+                                        <p className="text-xs text-slate-500">
+                                            {authMode === 'login' ? 'Login to your account' : 'Register a new account'}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {alertMsg.text && (
+                                    <div className={`mb-4 p-3 rounded-xl text-xs flex items-center space-x-2 ${
+                                        alertMsg.type === 'error' 
+                                            ? 'bg-rose-50 border border-rose-200 text-rose-700 font-semibold' 
+                                            : 'bg-emerald-50 border border-emerald-200 text-emerald-800 font-semibold'
+                                    }`}>
+                                        <i className={`fa-solid ${alertMsg.type === 'error' ? 'fa-triangle-exclamation text-rose-600' : 'fa-circle-check text-emerald-600'} text-base`}></i>
+                                        <span>{alertMsg.text}</span>
+                                    </div>
+                                )}
+
+                                <div className="flex bg-slate-100 p-1 rounded-xl mb-5">
+                                    <button 
+                                        onClick={() => { setAuthMode('register'); setAlertMsg({ type: '', text: '' }); }}
+                                        className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+                                            authMode === 'register' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                                        }`}
+                                    >
+                                        REGISTER
+                                    </button>
+                                    <button 
+                                        onClick={() => { setAuthMode('login'); setAlertMsg({ type: '', text: '' }); }}
+                                        className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
+                                            authMode === 'login' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+                                        }`}
+                                    >
+                                        LOGIN IF ALREADY REGISTERED
+                                    </button>
+                                </div>
+
+                                <form onSubmit={handleAuthSubmit} className="space-y-4">
+                                    {authMode === 'register' && (
+                                        <>
+                                            <div>
+                                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                                    {selectedRole === 'customer' ? 'Full Name (Alphabets only)' : 'Medical Store Name'}
+                                                </label>
+                                                <div className="relative">
+                                                    <i className={`fa-solid ${selectedRole === 'customer' ? 'fa-user' : 'fa-store'} text-slate-400 absolute left-3.5 top-3 text-xs`}></i>
+                                                    <input 
+                                                        type="text" 
+                                                        required 
+                                                        value={formData.fullName}
+                                                        onChange={selectedRole === 'customer' ? handleNameChange : (e) => setFormData({...formData, fullName: e.target.value})}
+                                                        placeholder={selectedRole === 'customer' ? 'Enter full name' : 'e.g. Unati Pharmacy'}
+                                                        className="w-full pl-9 pr-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-semibold text-slate-700 mb-1">Mobile No. (10 digits only)</label>
+                                                <div className="relative">
+                                                    <i className="fa-solid fa-phone text-slate-400 absolute left-3.5 top-3 text-xs"></i>
+                                                    <input 
+                                                        type="text" 
+                                                        required 
+                                                        value={formData.mobileNo}
+                                                        onChange={handleMobileChange}
+                                                        placeholder="Enter 10 digit mobile number"
+                                                        className="w-full pl-9 pr-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {selectedRole === 'store' && (
+                                                <div>
+                                                    <label className="block text-xs font-semibold text-slate-700 mb-1">Pharmacy Drug License Number</label>
+                                                    <div className="relative">
+                                                        <i className="fa-solid fa-id-card text-slate-400 absolute left-3.5 top-3 text-xs"></i>
+                                                        <input 
+                                                            type="text" 
+                                                            required 
+                                                            value={formData.drugLicense}
+                                                            onChange={(e) => setFormData({...formData, drugLicense: e.target.value})}
+                                                            placeholder="e.g. 25802580"
+                                                            className="w-full pl-9 pr-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            <div>
+                                                <label className="block text-xs font-semibold text-slate-700 mb-1">Set Password</label>
+                                                <div className="relative">
+                                                    <i className="fa-solid fa-lock text-slate-400 absolute left-3.5 top-3 text-xs"></i>
+                                                    <input 
+                                                        type={showPassword ? "text" : "password"} 
+                                                        required 
+                                                        value={formData.password}
+                                                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                                        placeholder="••••••••"
+                                                        className="w-full pl-9 pr-10 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
+                                                    />
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => setShowPassword(!showPassword)}
+                                                        className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 focus:outline-none"
+                                                    >
+                                                        <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'} text-xs`}></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-semibold text-slate-700 mb-1">Verify Password</label>
+                                                <div className="relative">
+                                                    <i className="fa-solid fa-shield-halved text-slate-400 absolute left-3.5 top-3 text-xs"></i>
+                                                    <input 
+                                                        type={showVerifyPassword ? "text" : "password"} 
+                                                        required 
+                                                        value={formData.verifyPassword}
+                                                        onChange={(e) => setFormData({...formData, verifyPassword: e.target.value})}
+                                                        placeholder="Re-enter password"
+                                                        className="w-full pl-9 pr-10 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
+                                                    />
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => setShowVerifyPassword(!showVerifyPassword)}
+                                                        className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 focus:outline-none"
+                                                    >
+                                                        <i className={`fa-solid ${showVerifyPassword ? 'fa-eye-slash' : 'fa-eye'} text-xs`}></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {authMode === 'login' && (
+                                        <>
+                                            <div>
+                                                <label className="block text-xs font-semibold text-slate-700 mb-1">Mobile No. (10 digits)</label>
+                                                <div className="relative">
+                                                    <i className="fa-solid fa-phone text-slate-400 absolute left-3.5 top-3 text-xs"></i>
+                                                    <input 
+                                                        type="text" 
+                                                        required 
+                                                        value={formData.mobileNo}
+                                                        onChange={handleMobileChange}
+                                                        placeholder="Enter registered mobile number"
+                                                        className="w-full pl-9 pr-3 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+                                                <div className="relative">
+                                                    <i className="fa-solid fa-lock text-slate-400 absolute left-3.5 top-3 text-xs"></i>
+                                                    <input 
+                                                        type={showPassword ? "text" : "password"} 
+                                                        required 
+                                                        value={formData.password}
+                                                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                                        placeholder="••••••••"
+                                                        className="w-full pl-9 pr-10 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white"
+                                                    />
+                                                    <button 
+                                                        type="button" 
+                                                        onClick={() => setShowPassword(!showPassword)}
+                                                        className="absolute right-3.5 top-3 text-slate-400 hover:text-slate-600 focus:outline-none"
+                                                    >
+                                                        <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'} text-xs`}></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    <button 
+                                        type="submit"
+                                        className={`w-full py-3 rounded-xl font-bold text-xs text-white shadow-lg transition-all duration-200 mt-2 ${
+                                            selectedRole === 'customer'
+                                                ? 'bg-sky-600 hover:bg-sky-700 shadow-sky-600/30'
+                                                : 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30'
+                                        }`}
+                                    >
+                                        {authMode === 'login' ? 'LOGIN' : 'REGISTER NOW'}
+                                    </button>
+                                </form>
+
+                                <div className="mt-4 text-center">
+                                    <button 
+                                        onClick={closeModal} 
+                                        className="text-xs text-slate-500 hover:text-slate-800 font-medium"
+                                    >
+                                        <i className="fa-solid fa-arrow-left mr-1"></i> Back to Role Selection
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<MediScanApp />);
+    </script>
+</body>
+</html>

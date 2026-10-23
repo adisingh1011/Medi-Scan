@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan - Medicine Inventory & Product Catalog</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Google Translate Integration Script -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <style>
+        /* Fix Top Banner shifting caused by Google Translate */
+        html, body {
+            top: 0 !important;
+            position: static !important;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .goog-te-banner-frame, 
+        .goog-te-balloon-frame,
+        .goog-te-banner,
+        iframe.skiptranslate,
+        .goog-tooltip,
+        .goog-tooltip:hover {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            width: 0 !important;
+        }
+
+        #google_translate_element {
+            display: none !important;
+        }
+
+        /* Pharmacy Background Image */
+        .bg-pharmacy {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.45)), url('https://images.unsplash.com/photo-1586015555751-63c23313936a?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .dark .bg-pharmacy {
+            background-image: linear-gradient(rgba(15, 23, 42, 0.85), rgba(15, 23, 42, 0.95)), url('https://images.unsplash.com/photo-1586015555751-63c23313936a?auto=format&fit=crop&q=80&w=2000');
+        }
+
+        /* Ticker Animation for Header Slogan */
+        .ticker-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .ticker-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: tickerAnimation 14s linear infinite;
+        }
+
+        @keyframes tickerAnimation {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(16, 185, 129, 0.4);
+            border-radius: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(16, 185, 129, 0.7);
+        }
+    </style>
+</head>
+<body id="appBody" class="bg-pharmacy min-h-screen flex flex-col justify-between selection:bg-teal-500 selection:text-white transition-colors duration-300">
+
+    <!-- Hidden Container for Google Translate Core Engine -->
+    <div id="google_translate_element"></div>
+
+    <!-- 1. HEADER / NAVBAR -->
+    <header class="w-full bg-white/95 dark:bg-slate-900/95 border-b border-slate-200 dark:border-slate-800 px-4 md:px-8 py-3 shadow-sm z-40 sticky top-0 backdrop-blur-md transition-colors duration-200">
+        <div class="max-w-7xl mx-auto flex flex-wrap md:flex-nowrap items-center justify-between gap-3">
+            
+            <!-- Left: Logo & Brand -->
+            <div class="flex items-center space-x-3 shrink-0">
+                <div class="bg-sky-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+                    <i class="fa-solid fa-heart-pulse text-xl"></i>
+                </div>
+                <span class="text-2xl font-black tracking-tight text-slate-800 dark:text-white">
+                    Medi<span class="text-sky-600">Scan</span>
+                </span>
+            </div>
+
+            <!-- Center: Animated Slogan Banner -->
+            <div class="hidden md:flex flex-1 justify-center px-6">
+                <div class="text-slate-700 dark:text-slate-300 font-medium italic text-xs md:text-sm bg-sky-50/80 dark:bg-slate-800/80 px-4 py-1.5 rounded-full border border-sky-100 dark:border-slate-700 shadow-inner ticker-container flex items-center">
+                    <div class="ticker-text">
+                        MediScan: Your Bridge to Health and Medicines - <span class="font-semibold text-slate-800 dark:text-white">Scan, Stock, Deliver.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: 22 Official Indian Languages Dropdown Selector -->
+            <div class="flex items-center space-x-3 shrink-0">
+                <div class="relative flex items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 shadow-sm hover:border-sky-500 transition">
+                    <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-transparent text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer pr-2">
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी (Hindi)</option>
+                        <option value="bn">বাংলা (Bengali)</option>
+                        <option value="te">తెలుగు (Telugu)</option>
+                        <option value="mr">मराठी (Marathi)</option>
+                        <option value="ta">தமிழ் (Tamil)</option>
+                        <option value="ur">اردو (Urdu)</option>
+                        <option value="gu">ગુજરાતી (Gujarati)</option>
+                        <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                        <option value="or">ଓଡ଼ିଆ (Odia)</option>
+                        <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
+                        <option value="ml">മലയാളം (Malayalam)</option>
+                        <option value="as">অসমীয়া (Assamese)</option>
+                        <option value="ma">मैथिली (Maithili)</option>
+                        <option value="sa">संस्कृतम् (Sanskrit)</option>
+                        <option value="ne">नेपाली (Nepali)</option>
+                        <option value="sd">સિંધિ (Sindhi)</option>
+                        <option value="ks">कश्मीरी (Kashmiri)</option>
+                        <option value="kok">कोंकणी (Konkani)</option>
+                        <option value="doi">डोगरी (Dogri)</option>
+                        <option value="mni">मणिपुरी (Manipuri)</option>
+                        <option value="sat">સંથાલી (Santali)</option>
+                        <option value="brx">बोडो (Bodo)</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down text-slate-500 dark:text-slate-400 text-xs pointer-events-none"></i>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- 2. MAIN CONTENT AREA -->
+    <main class="relative flex-grow p-4 md:p-8 min-h-[calc(100vh-115px)]">
+        
+        <div class="relative z-10 max-w-7xl mx-auto space-y-6">
+
+            <!-- TOP BAR CONTROLS: Profile Toggle, Search & Basket Trolley Button -->
+            <div class="flex flex-wrap items-center justify-between gap-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-white/60 dark:border-slate-800">
+                
+                <!-- Left: Profile Badge Button -->
+                <div class="flex items-center space-x-3">
+                    <button id="profileBtn" onclick="toggleProfileCard()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-4 py-2 rounded-xl shadow-md hover:shadow-lg transition flex items-center space-x-2 text-sm border border-emerald-600">
+                        <div class="w-6 h-6 rounded-full bg-emerald-900/50 flex items-center justify-center border border-emerald-300/40">
+                            <i class="fa-solid fa-store text-xs text-emerald-200"></i>
+                        </div>
+                        <span id="storeNameBadge">Unati Pharmacy</span>
+                        <i id="profileArrow" class="fa-solid fa-chevron-down text-xs ml-1 transition-transform"></i>
+                    </button>
+                    
+                    <span id="activeCountBadge" class="hidden sm:inline-block bg-sky-100 dark:bg-slate-800 text-sky-800 dark:text-sky-400 text-xs font-bold px-3 py-1.5 rounded-lg border border-sky-200 dark:border-slate-700">
+                        3 Active Products
+                    </span>
+
+                    <button onclick="toggleModal(true)" class="hidden md:flex bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-semibold px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs items-center gap-1.5 transition" title="Add New Medicine">
+                        <i class="fa-solid fa-plus text-emerald-600"></i>
+                        <span>Add Stock</span>
+                    </button>
+                </div>
+
+                <!-- Center: Search Input -->
+                <div class="flex-1 max-w-md min-w-[220px]">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" id="searchInput" oninput="filterProducts()" placeholder="Search medicine name..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-sm text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition">
+                    </div>
+                </div>
+
+                <!-- Right: Shopping Trolley / Basket Button -->
+                <button onclick="toggleBasketModal(true)" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2 text-sm md:text-base border border-emerald-600/50 relative group">
+                    <!-- Four-wheeler Mall Trolley Icon -->
+                    <i class="fa-solid fa-cart-shopping text-base text-emerald-100 group-hover:scale-110 transition-transform"></i>
+                    <span>Basket</span>
+                    <!-- Basket Item Count Badge -->
+                    <span id="basketBadgeCount" class="bg-amber-400 text-slate-900 text-xs font-black px-2 py-0.5 rounded-full shadow-md ml-1 border border-white">
+                        0
+                    </span>
+                </button>
+            </div>
+
+            <!-- COLLAPSIBLE STORE PROFILE CARD -->
+            <div id="profileCard" class="hidden transition-all duration-300 transform scale-95 opacity-0">
+                <div onclick="toggleProfileCard()" class="max-w-md bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl p-5 border border-white/80 dark:border-slate-800 relative text-slate-800 dark:text-slate-100 cursor-pointer hover:border-emerald-500/50 transition">
+                    <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 mb-4">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-12 h-12 rounded-full bg-emerald-700 flex items-center justify-center text-white text-lg font-bold shadow-md">
+                                UP
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-base flex items-center gap-1.5">
+                                    Unati Pharmacy
+                                    <i class="fa-solid fa-circle-check text-emerald-500 text-sm" title="Verified Medical Store"></i>
+                                </h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">License No: <span class="font-mono font-medium">25882588</span></p>
+                            </div>
+                        </div>
+                        
+                        <button onclick="event.stopPropagation(); toggleDarkMode()" class="px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition flex items-center gap-1.5">
+                            <i id="themeIcon" class="fa-solid fa-moon text-amber-500"></i>
+                            <span id="themeLabel">Dark Mode</span>
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2 mb-3 text-center">
+                        <div class="bg-sky-50 dark:bg-slate-800/80 p-2.5 rounded-xl border border-sky-100 dark:border-slate-700">
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Stock Items</p>
+                            <p id="statStockCount" class="text-lg font-black text-sky-600 dark:text-sky-400">3 Items</p>
+                        </div>
+                        <div class="bg-emerald-50 dark:bg-slate-800/80 p-2.5 rounded-xl border border-emerald-100 dark:border-slate-700">
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Total Views</p>
+                            <p id="statTotalViews" class="text-lg font-black text-emerald-600 dark:text-emerald-400">0</p>
+                        </div>
+                        <div class="bg-rose-50 dark:bg-slate-800/80 p-2.5 rounded-xl border border-rose-100 dark:border-slate-700">
+                            <p class="text-[10px] text-slate-500 dark:text-slate-400 font-medium">Total Likes</p>
+                            <p id="statTotalLikes" class="text-lg font-black text-rose-600 dark:text-rose-400">0</p>
+                        </div>
+                    </div>
+
+                    <p class="text-[11px] text-center text-slate-400 italic">Click card to collapse</p>
+                </div>
+            </div>
+
+            <!-- E-COMMERCE STYLE PRODUCT CATALOG GRID -->
+            <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Dynamic Medicine Cards Injected Here -->
+            </div>
+
+            <!-- Empty State Display -->
+            <div id="emptyState" class="hidden text-center py-16 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl border border-white/50 dark:border-slate-800 max-w-xl mx-auto shadow-xl">
+                <div class="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-prescription-bottle-medical text-3xl"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1">No Medicines Found</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">Start by adding your first medicine or clear your search filter.</p>
+                <button onclick="toggleModal(true)" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition inline-flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add New Medicine</span>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- 3. SHOPPING BASKET / TROLLEY MODAL -->
+        <div id="basketModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md transition-all duration-300">
+            <div class="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden flex flex-col max-h-[85vh]">
+                
+                <!-- Basket Header -->
+                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-700 text-white flex items-center justify-center shadow-md">
+                            <i class="fa-solid fa-cart-shopping text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-extrabold text-slate-800 dark:text-white">Your Shopping Basket</h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Review selected items before billing</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleBasketModal(false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1.5 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Basket Items List -->
+                <div id="basketItemsContainer" class="p-6 overflow-y-auto custom-scroll flex-1 space-y-4 text-slate-700 dark:text-slate-200">
+                    <!-- Dynamic Basket Content Injected Here -->
+                </div>
+
+                <!-- Basket Footer Summary & Checkout -->
+                <div class="p-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 space-y-4">
+                    <div class="space-y-1.5">
+                        <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <span>Subtotal</span>
+                            <span id="basketSubtotal">₹0.00</span>
+                        </div>
+                        <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400">
+                            <span>Delivery & Taxes</span>
+                            <span class="text-emerald-600 font-bold">FREE</span>
+                        </div>
+                        <div class="flex justify-between text-base font-black text-slate-900 dark:text-white pt-2 border-t border-slate-200 dark:border-slate-700">
+                            <span>Total Billing Amount</span>
+                            <span id="basketGrandTotal" class="text-emerald-600 dark:text-emerald-400">₹0.00</span>
+                        </div>
+                    </div>
+
+                    <button onclick="checkoutBasket()" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-credit-card"></i>
+                        <span>Proceed to Billing & Checkout</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 4. ADD / EDIT MEDICINE MODAL FORM -->
+        <div id="medicineModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-all duration-300">
+            <div class="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-300 max-h-[90vh] flex flex-col">
+                
+                <!-- Modal Header -->
+                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
+                    <h2 id="modalTitle" class="text-lg md:text-xl font-extrabold text-slate-800 dark:text-white tracking-wide flex items-center gap-2">
+                        <i class="fa-solid fa-prescription-bottle-medical text-emerald-600 dark:text-emerald-400"></i>
+                        <span>ADD NEW MEDICINE DETAILS</span>
+                    </h2>
+                    <button onclick="toggleModal(false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-xmark text-xl"></i>
+                    </button>
+                </div>
+
+                <!-- Modal Form Body -->
+                <form id="medicineForm" onsubmit="handleFormSubmit(event)" class="p-6 space-y-5 overflow-y-auto custom-scroll text-slate-700 dark:text-slate-200 flex-1">
+                    <input type="hidden" id="editId">
+
+                    <!-- Section 1: Image & Basic Info -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                        
+                        <!-- Image Upload Container -->
+                        <div class="md:col-span-1">
+                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Medicine Image</label>
+                            <div onclick="document.getElementById('fileInput').click()" 
+                                 class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-800/40 hover:bg-emerald-50/40 transition text-center group h-36 relative overflow-hidden">
+                                
+                                <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="previewImage(event)">
+                                <div id="uploadPlaceholder" class="flex flex-col items-center">
+                                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-emerald-100 flex items-center justify-center mb-2 transition">
+                                        <i class="fa-solid fa-camera text-slate-500 dark:text-slate-400 group-hover:text-emerald-600 text-lg"></i>
+                                    </div>
+                                    <span class="text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-emerald-700">Medicine Image Upload</span>
+                                </div>
+                                <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover rounded-xl" alt="Preview">
+                            </div>
+                        </div>
+
+                        <!-- Details Input Fields -->
+                        <div class="md:col-span-2 space-y-4">
+                            <div>
+                                <label for="medName" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Medicine Name <span class="text-red-500">*</span></label>
+                                <input type="text" id="medName" required placeholder="e.g. Paracetamol 500mg" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm dark:text-white">
+                            </div>
+
+                            <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                                <div>
+                                    <label for="medStock" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Stock</label>
+                                    <input type="number" id="medStock" min="0" placeholder="100" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm dark:text-white">
+                                </div>
+                                <div>
+                                    <label for="medPrice" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Price (₹)</label>
+                                    <input type="number" id="medPrice" min="0" step="0.01" placeholder="45.00" required class="w-full bg-slate-50 dark:bg-slate-800 border border-emerald-500/70 border-2 rounded-lg px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm dark:text-white">
+                                </div>
+                                <div>
+                                    <label for="medExpiry" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Expiry Date</label>
+                                    <input type="date" id="medExpiry" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm dark:text-white">
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <hr class="border-slate-200 dark:border-slate-800">
+
+                    <!-- Section 2: Dosage Schedule -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs uppercase tracking-wider font-extrabold text-slate-500 dark:text-slate-400">Dosage Instructions & Usage</h3>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="dosageTiming" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Dosage Timing</label>
+                                <select id="dosageTiming" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm dark:text-white">
+                                    <option value="After Meal (Khane ke Baad)" selected>After Meal (Khane ke Baad)</option>
+                                    <option value="Before Meal (Khane se Pehle)">Before Meal (Khane se Pehle)</option>
+                                    <option value="With Meal (Khane ke Saath)">With Meal (Khane ke Saath)</option>
+                                    <option value="Empty Stomach (Khali Pet)">Empty Stomach (Khali Pet)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="dailyFrequency" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Daily Frequency</label>
+                                <div class="flex items-center space-x-2">
+                                    <input type="number" id="dailyFrequency" min="1" max="10" value="2" required class="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm dark:text-white">
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">times per day</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-200 dark:border-slate-800">
+
+                    <!-- Section 3: Notes & Side Effects -->
+                    <div class="space-y-3">
+                        <h3 class="text-xs uppercase tracking-wider font-extrabold text-slate-500 dark:text-slate-400">Product Description & Notes</h3>
+                        <div>
+                            <label for="sideEffects" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Side Effects & Notes</label>
+                            <textarea id="sideEffects" rows="2" placeholder="e.g. Mild drowsiness, take with plenty of water..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm resize-none dark:text-white"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="pt-2 flex items-center justify-end space-x-3 border-t border-slate-200 dark:border-slate-800">
+                        <button type="button" onclick="toggleModal(false)" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold px-5 py-2 rounded-xl text-sm transition">
+                            CANCEL
+                        </button>
+                        <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-6 py-2 rounded-xl text-sm shadow-md hover:shadow-lg transition flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                            <span>SAVE & UPLOAD</span>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+        <!-- 5. PRODUCT VIEW DETAILS POPUP -->
+        <div id="productDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md">
+            <div id="productDetailContent" class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative max-h-[90vh] overflow-y-auto custom-scroll">
+                <!-- Inserted Dynamically -->
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="fixed bottom-8 right-6 bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-2xl flex items-center space-x-3 opacity-0 pointer-events-none transition-all duration-300 z-50 transform translate-y-4 border border-slate-700">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
+            <div>
+                <p id="toastTitle" class="text-sm font-bold">Action Completed</p>
+                <p id="toastMessage" class="text-xs text-slate-300">Catalog updated.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 6. FOOTER -->
+    <footer class="w-full bg-slate-900 text-slate-400 text-center py-3 text-xs border-t border-slate-800 z-30">
+        <p>© 2026 MediScan Health Tech. Smart Stock & E-Commerce Prescription System.</p>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT LOGIC -->
+    <script>
+        // Sample Initial Data with Like & View Counters
+        const defaultMedicines = [
+            {
+                id: 'med-1',
+                name: 'Paracetamol 500mg Tablets',
+                price: 45.00,
+                mrp: 60.00,
+                stock: 120,
+                expiry: '2027-12-31',
+                dosageTiming: 'After Meal (Khane ke Baad)',
+                dailyFrequency: 3,
+                sideEffects: 'May cause mild drowsiness. Useful for fever and pain relief.',
+                image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=600',
+                likes: 25,
+                views: 142,
+                isLiked: false
+            },
+            {
+                id: 'med-2',
+                name: 'Amoxicillin 250mg Antibiotic',
+                price: 110.00,
+                mrp: 140.00,
+                stock: 45,
+                expiry: '2026-11-15',
+                dosageTiming: 'With Meal (Khane ke Saath)',
+                dailyFrequency: 2,
+                sideEffects: 'Complete full course. Useful for throat and chest infections.',
+                image: 'https://images.unsplash.com/photo-1471864190281-a93a3070b6de?auto=format&fit=crop&q=80&w=600',
+                likes: 18,
+                views: 98,
+                isLiked: false
+            },
+            {
+                id: 'med-3',
+                name: 'Vitamin C & Zinc Chewable',
+                price: 85.00,
+                mrp: 100.00,
+                stock: 200,
+                expiry: '2028-05-20',
+                dosageTiming: 'Empty Stomach (Khali Pet)',
+                dailyFrequency: 1,
+                sideEffects: 'Boosts immunity. Safe daily food supplement.',
+                image: 'https://images.unsplash.com/photo-1577401239170-897942555fb3?auto=format&fit=crop&q=80&w=600',
+                likes: 35,
+                views: 210,
+                isLiked: false
+            }
+        ];
+
+        let medicines = JSON.parse(localStorage.getItem('mediscan_medicines_v3')) || defaultMedicines;
+        let basket = JSON.parse(localStorage.getItem('mediscan_basket')) || [];
+        let currentUploadedImage = '';
+
+        // Initialize App & Read Saved Cookie Language
+        window.addEventListener('DOMContentLoaded', () => {
+            saveAndRender();
+            
+            // Sync dropdown value with current Google Translate cookie
+            const cookies = document.cookie.split(';');
+            const googTransCookie = cookies.find(c => c.trim().startsWith('googtrans='));
+            if (googTransCookie) {
+                const langCode = googTransCookie.split('/').pop();
+                const selectElement = document.getElementById('langSelect');
+                if (langCode && selectElement) {
+                    selectElement.value = langCode;
+                }
+            }
+        });
+
+        // Save to LocalStorage & Render UI
+        function saveAndRender() {
+            localStorage.setItem('mediscan_medicines_v3', JSON.stringify(medicines));
+            localStorage.setItem('mediscan_basket', JSON.stringify(basket));
+            renderProducts(medicines);
+            updateStats();
+            updateBasketUI();
+        }
+
+        // Update Counter Stats
+        function updateStats() {
+            const count = medicines.length;
+            const totalViews = medicines.reduce((sum, m) => sum + (m.views || 0), 0);
+            const totalLikes = medicines.reduce((sum, m) => sum + (m.likes || 0), 0);
+
+            document.getElementById('statStockCount').innerText = `${count} Items`;
+            document.getElementById('activeCountBadge').innerText = `${count} Active Products`;
+            document.getElementById('statTotalViews').innerText = totalViews;
+            document.getElementById('statTotalLikes').innerText = totalLikes;
+        }
+
+        // Render E-Commerce Style Cards with [+] Add to Basket Button
+        function renderProducts(items) {
+            const grid = document.getElementById('productGrid');
+            const emptyState = document.getElementById('emptyState');
+
+            if (!items || items.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = items.map(med => {
+                const discount = med.mrp ? Math.round(((med.mrp - med.price) / med.mrp) * 100) : 15;
+                const isLowStock = med.stock < 20;
+
+                return `
+                <div class="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl border border-white/60 dark:border-slate-800 shadow-xl overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative">
+                    
+                    <!-- Image Section -->
+                    <div class="relative bg-slate-100 dark:bg-slate-800 h-48 overflow-hidden flex items-center justify-center">
+                        <img src="${med.image || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=600'}" 
+                             alt="${med.name}" 
+                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                             onerror="this.src='https://placehold.co/400x300/10b981/ffffff?text=Medicine'">
+                        
+                        <!-- Discount Badge -->
+                        <span class="absolute top-3 left-3 bg-red-500 text-white font-extrabold text-[10px] uppercase px-2.5 py-1 rounded-md shadow-md">
+                            ${discount > 0 ? discount + '% OFF' : 'SPECIAL DEAL'}
+                        </span>
+
+                        <!-- Like (Heart) Button -->
+                        <button onclick="toggleLike('${med.id}')" class="absolute top-3 right-3 bg-white/90 dark:bg-slate-800/90 hover:scale-110 p-2 rounded-full shadow-md transition-all text-xs flex items-center gap-1.5 backdrop-blur-sm z-10 border border-slate-200 dark:border-slate-700">
+                            <i class="${med.isLiked ? 'fa-solid text-rose-500' : 'fa-regular text-slate-500 dark:text-slate-300'} fa-heart"></i>
+                            <span class="font-extrabold text-[11px] text-slate-700 dark:text-slate-200">${med.likes || 0}</span>
+                        </button>
+
+                        <!-- Stock Badge -->
+                        <span class="absolute bottom-2 left-3 ${isLowStock ? 'bg-amber-500' : 'bg-emerald-600'} text-white font-bold text-[10px] px-2.5 py-0.5 rounded-full shadow flex items-center gap-1">
+                            <i class="fa-solid ${isLowStock ? 'fa-triangle-exclamation' : 'fa-check'} text-[9px]"></i>
+                            ${med.stock} in stock
+                        </span>
+                    </div>
+
+                    <!-- Card Body -->
+                    <div class="p-4 flex-1 flex flex-col justify-between space-y-3">
+                        <div>
+                            <div class="flex items-start justify-between gap-2 mb-1">
+                                <h3 class="font-extrabold text-slate-800 dark:text-white text-base line-clamp-1 group-hover:text-emerald-600 transition">
+                                    ${med.name}
+                                </h3>
+                            </div>
+                            
+                            <div class="flex items-center justify-between text-[11px] text-slate-400 dark:text-slate-500 mb-2">
+                                <span class="flex items-center gap-1">
+                                    <i class="fa-regular fa-calendar-xmark text-slate-400"></i>
+                                    Exp: <span class="font-mono text-slate-600 dark:text-slate-300">${formatDate(med.expiry)}</span>
+                                </span>
+                                <!-- Live View Counter Badge -->
+                                <span class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full text-[10px] font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1 border border-slate-200 dark:border-slate-700">
+                                    <i class="fa-solid fa-eye text-sky-500"></i>
+                                    ${med.views || 0} Views
+                                </span>
+                            </div>
+
+                            <!-- Price -->
+                            <div class="flex items-baseline space-x-2 my-2">
+                                <span class="text-xl font-black text-slate-900 dark:text-emerald-400">₹${parseFloat(med.price).toFixed(2)}</span>
+                                ${med.mrp ? `<span class="text-xs text-slate-400 line-through">₹${parseFloat(med.mrp).toFixed(2)}</span>` : ''}
+                            </div>
+
+                            <!-- Dosage Schedule Box -->
+                            <div class="bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200/80 dark:border-emerald-800/60 rounded-xl p-2.5 text-xs text-emerald-900 dark:text-emerald-200 space-y-1">
+                                <p class="font-bold flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
+                                    <i class="fa-solid fa-clock-rotate-left"></i>
+                                    Dosage Schedule:
+                                </p>
+                                <p class="text-[11px]">
+                                    <span class="font-semibold">${med.dailyFrequency} times/day</span> • ${med.dosageTiming}
+                                </p>
+                            </div>
+
+                            <p class="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 mt-2 italic">
+                                "${med.sideEffects || 'No side effects reported.'}"
+                            </p>
+                        </div>
+
+                        <!-- Card Action Buttons: [+] Add to Basket on the LEFT of View Product -->
+                        <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center gap-2">
+                            
+                            <!-- PLUS (+) BUTTON FOR ADDING DIRECTLY TO BASKET -->
+                            <button onclick="addToBasket('${med.id}')" class="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-sm w-9 h-9 rounded-xl shadow-md transition flex items-center justify-center shrink-0" title="Add medicine to basket">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+
+                            <!-- View Product Button -->
+                            <button onclick="viewProductDetails('${med.id}')" class="flex-1 bg-slate-900 hover:bg-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 text-white text-xs font-bold py-2 rounded-xl shadow transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-eye text-xs text-sky-400"></i>
+                                View Product
+                            </button>
+
+                            <!-- Edit & Delete Controls -->
+                            <button onclick="editProduct('${med.id}')" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 transition" title="Edit Medicine">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </button>
+                            <button onclick="deleteProduct('${med.id}')" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-xl border border-red-200 dark:border-red-900/50 transition" title="Delete Medicine">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        // Add Medicine to Basket Logic
+        function addToBasket(id) {
+            const med = medicines.find(m => m.id === id);
+            if (!med) return;
+
+            const basketIndex = basket.findIndex(item => item.id === id);
+            if (basketIndex !== -1) {
+                basket[basketIndex].quantity += 1;
+            } else {
+                basket.push({
+                    id: med.id,
+                    name: med.name,
+                    price: med.price,
+                    image: med.image,
+                    quantity: 1
+                });
+            }
+
+            saveAndRender();
+            showToast("Added to Basket! 🛒", `${med.name} added to your trolley.`);
+        }
+
+        // Update Basket Modal UI and Badge
+        function updateBasketUI() {
+            const totalCount = basket.reduce((sum, item) => sum + item.quantity, 0);
+            const totalAmount = basket.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+            // Update Badge Count
+            document.getElementById('basketBadgeCount').innerText = totalCount;
+
+            // Update Items List in Modal
+            const container = document.getElementById('basketItemsContainer');
+            if (basket.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 text-slate-400">
+                        <i class="fa-solid fa-cart-flatbed text-4xl mb-3 text-slate-300 dark:text-slate-700"></i>
+                        <p class="text-sm font-semibold">Your shopping basket is empty</p>
+                        <p class="text-xs">Click '+' on any medicine to add it here.</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = basket.map(item => `
+                    <div class="flex items-center justify-between bg-slate-50 dark:bg-slate-800/60 p-3 rounded-2xl border border-slate-200 dark:border-slate-700 gap-3">
+                        <img src="${item.image}" class="w-12 h-12 rounded-xl object-cover border border-slate-200 dark:border-slate-700 shrink-0">
+                        
+                        <div class="flex-1 min-w-0">
+                            <h4 class="font-bold text-xs sm:text-sm text-slate-800 dark:text-white truncate">${item.name}</h4>
+                            <p class="text-xs font-black text-emerald-600 dark:text-emerald-400">₹${parseFloat(item.price).toFixed(2)}</p>
+                        </div>
+
+                        <!-- Quantity Selector Controls -->
+                        <div class="flex items-center space-x-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-2 py-1">
+                            <button onclick="changeQuantity('${item.id}', -1)" class="text-slate-500 hover:text-red-500 font-bold px-1.5 text-xs">-</button>
+                            <span class="text-xs font-black text-slate-800 dark:text-white">${item.quantity}</span>
+                            <button onclick="changeQuantity('${item.id}', 1)" class="text-slate-500 hover:text-emerald-500 font-bold px-1.5 text-xs">+</button>
+                        </div>
+
+                        <!-- Remove Button -->
+                        <button onclick="removeFromBasket('${item.id}')" class="text-slate-400 hover:text-red-500 p-1.5 text-xs transition">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            // Update Totals
+            document.getElementById('basketSubtotal').innerText = `₹${totalAmount.toFixed(2)}`;
+            document.getElementById('basketGrandTotal').innerText = `₹${totalAmount.toFixed(2)}`;
+        }
+
+        // Change Quantity in Basket
+        function changeQuantity(id, change) {
+            const index = basket.findIndex(i => i.id === id);
+            if (index !== -1) {
+                basket[index].quantity += change;
+                if (basket[index].quantity <= 0) {
+                    basket.splice(index, 1);
+                }
+                saveAndRender();
+            }
+        }
+
+        // Remove from Basket
+        function removeFromBasket(id) {
+            basket = basket.filter(i => i.id !== id);
+            saveAndRender();
+            showToast("Item Removed", "Removed from shopping basket.");
+        }
+
+        // Open/Close Basket Modal
+        function toggleBasketModal(show) {
+            const modal = document.getElementById('basketModal');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Checkout Action
+        function checkoutBasket() {
+            if (basket.length === 0) {
+                showToast("Basket Empty!", "Please add medicines to your basket first.");
+                return;
+            }
+            showToast("Order Placed Successfully! 🎉", "Your medicine bill has been generated.");
+            basket = [];
+            saveAndRender();
+            toggleBasketModal(false);
+        }
+
+        // Toggle Like Handler
+        function toggleLike(id) {
+            const index = medicines.findIndex(m => m.id === id);
+            if (index !== -1) {
+                if (medicines[index].isLiked) {
+                    medicines[index].likes = Math.max(0, (medicines[index].likes || 0) - 1);
+                    medicines[index].isLiked = false;
+                    showToast("Unliked Medicine", "Removed from favorites.");
+                } else {
+                    medicines[index].likes = (medicines[index].likes || 0) + 1;
+                    medicines[index].isLiked = true;
+                    showToast("Liked Medicine!", "High demand item recorded.");
+                }
+                saveAndRender();
+            }
+        }
+
+        // View Product Details Handler
+        function viewProductDetails(id) {
+            const index = medicines.findIndex(m => m.id === id);
+            if (index === -1) return;
+
+            medicines[index].views = (medicines[index].views || 0) + 1;
+            saveAndRender();
+
+            const med = medicines[index];
+            const modal = document.getElementById('productDetailModal');
+            const container = document.getElementById('productDetailContent');
+
+            container.innerHTML = `
+                <button onclick="closeProductDetailModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-xl p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                    <div class="bg-slate-100 dark:bg-slate-800 rounded-2xl overflow-hidden h-64 flex items-center justify-center relative">
+                        <img src="${med.image}" class="w-full h-full object-cover">
+                        <span class="absolute top-3 left-3 bg-sky-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow flex items-center gap-1">
+                            <i class="fa-solid fa-eye"></i> ${med.views} Total Views
+                        </span>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
+                                In Stock (${med.stock} Available)
+                            </span>
+                            <span class="text-xs font-bold text-rose-500 flex items-center gap-1">
+                                <i class="fa-solid fa-heart"></i> ${med.likes || 0} Likes
+                            </span>
+                        </div>
+
+                        <h2 class="text-2xl font-black text-slate-900 dark:text-white">${med.name}</h2>
+                        
+                        <div class="flex items-baseline space-x-3">
+                            <span class="text-3xl font-black text-emerald-600 dark:text-emerald-400">₹${parseFloat(med.price).toFixed(2)}</span>
+                            ${med.mrp ? `<span class="text-sm text-slate-400 line-through">₹${parseFloat(med.mrp).toFixed(2)}</span>` : ''}
+                        </div>
+
+                        <div class="p-3 bg-sky-50 dark:bg-slate-800 rounded-xl space-y-1.5 border border-sky-100 dark:border-slate-700">
+                            <p class="text-xs font-bold text-sky-800 dark:text-sky-300 uppercase">How to Consume:</p>
+                            <p class="text-sm text-slate-700 dark:text-slate-200">
+                                💊 Take <strong>${med.dailyFrequency} times per day</strong>
+                            </p>
+                            <p class="text-sm text-slate-700 dark:text-slate-200">
+                                🍽️ Schedule: <strong>${med.dosageTiming}</strong>
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs font-bold text-slate-500 uppercase">Expiry Date:</p>
+                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-200">${formatDate(med.expiry)}</p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs font-bold text-slate-500 uppercase">Side Effects & Notes:</p>
+                            <p class="text-xs text-slate-600 dark:text-slate-300">${med.sideEffects || 'None specified.'}</p>
+                        </div>
+
+                        <div class="pt-2 flex gap-3">
+                            <button onclick="addToBasket('${med.id}'); closeProductDetailModal();" class="flex-1 bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-cart-shopping"></i>
+                                <span>Add to Basket</span>
+                            </button>
+                            <button onclick="closeProductDetailModal()" class="bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold px-4 py-2.5 rounded-xl transition">
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeProductDetailModal() {
+            document.getElementById('productDetailModal').classList.add('hidden');
+        }
+
+        // Store Profile Side Card Controls
+        function toggleProfileCard() {
+            const card = document.getElementById('profileCard');
+            const arrow = document.getElementById('profileArrow');
+            if (card.classList.contains('hidden')) {
+                card.classList.remove('hidden');
+                setTimeout(() => {
+                    card.classList.remove('scale-95', 'opacity-0');
+                    card.classList.add('scale-100', 'opacity-100');
+                    arrow.classList.add('rotate-180');
+                }, 10);
+            } else {
+                card.classList.add('scale-95', 'opacity-0');
+                arrow.classList.remove('rotate-180');
+                setTimeout(() => {
+                    card.classList.add('hidden');
+                }, 200);
+            }
+        }
+
+        // Dark Theme Toggle
+        function toggleDarkMode() {
+            const body = document.getElementById('appBody');
+            const icon = document.getElementById('themeIcon');
+            const label = document.getElementById('themeLabel');
+
+            body.classList.toggle('dark');
+            if (body.classList.contains('dark')) {
+                icon.className = 'fa-solid fa-sun text-amber-400';
+                label.innerText = 'Light Mode';
+            } else {
+                icon.className = 'fa-solid fa-moon text-amber-500';
+                label.innerText = 'Dark Mode';
+            }
+        }
+
+        // Modal Form Toggle
+        function toggleModal(show, isEdit = false) {
+            const modal = document.getElementById('medicineModal');
+            if (show) {
+                if (!isEdit) {
+                    document.getElementById('medicineForm').reset();
+                    document.getElementById('editId').value = '';
+                    document.getElementById('modalTitle').innerHTML = `
+                        <i class="fa-solid fa-prescription-bottle-medical text-emerald-600"></i>
+                        <span>ADD NEW MEDICINE DETAILS</span>`;
+                    document.getElementById('imagePreview').classList.add('hidden');
+                    document.getElementById('uploadPlaceholder').classList.remove('opacity-0');
+                    currentUploadedImage = '';
+                }
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        // Image Preview Handler
+        function previewImage(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    currentUploadedImage = e.target.result;
+                    const img = document.getElementById('imagePreview');
+                    const placeholder = document.getElementById('uploadPlaceholder');
+                    img.src = currentUploadedImage;
+                    img.classList.remove('hidden');
+                    placeholder.classList.add('opacity-0');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Form Submit Handler
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            const editId = document.getElementById('editId').value;
+            const name = document.getElementById('medName').value.trim();
+            const stock = parseInt(document.getElementById('medStock').value) || 0;
+            const price = parseFloat(document.getElementById('medPrice').value) || 0;
+            const expiry = document.getElementById('medExpiry').value;
+            const dosageTiming = document.getElementById('dosageTiming').value;
+            const dailyFrequency = parseInt(document.getElementById('dailyFrequency').value) || 1;
+            const sideEffects = document.getElementById('sideEffects').value.trim();
+
+            const imgPreviewSrc = document.getElementById('imagePreview').src;
+            const imageToUse = (currentUploadedImage || (imgPreviewSrc && !imgPreviewSrc.includes('hidden') ? imgPreviewSrc : 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=600'));
+
+            if (editId) {
+                const index = medicines.findIndex(m => m.id === editId);
+                if (index !== -1) {
+                    medicines[index] = {
+                        ...medicines[index],
+                        name, stock, price, mrp: price * 1.25, expiry, dosageTiming, dailyFrequency, sideEffects, image: imageToUse
+                    };
+                    showToast("Medicine Updated Successfully!", "Product catalog updated.");
+                }
+            } else {
+                const newMed = {
+                    id: 'med-' + Date.now(),
+                    name,
+                    stock,
+                    price,
+                    mrp: price * 1.25,
+                    expiry,
+                    dosageTiming,
+                    dailyFrequency,
+                    sideEffects,
+                    image: imageToUse,
+                    likes: 0,
+                    views: 0,
+                    isLiked: false
+                };
+                medicines.unshift(newMed);
+                showToast("Medicine Saved Successfully!", "Added to inventory catalog.");
+            }
+
+            saveAndRender();
+            toggleModal(false);
+        }
+
+        // Edit Medicine Handler
+        function editProduct(id) {
+            const med = medicines.find(m => m.id === id);
+            if (!med) return;
+
+            document.getElementById('editId').value = med.id;
+            document.getElementById('medName').value = med.name;
+            document.getElementById('medStock').value = med.stock;
+            document.getElementById('medPrice').value = med.price;
+            document.getElementById('medExpiry').value = med.expiry;
+            document.getElementById('dosageTiming').value = med.dosageTiming;
+            document.getElementById('dailyFrequency').value = med.dailyFrequency;
+            document.getElementById('sideEffects').value = med.sideEffects || '';
+
+            if (med.image) {
+                const img = document.getElementById('imagePreview');
+                img.src = med.image;
+                img.classList.remove('hidden');
+                document.getElementById('uploadPlaceholder').classList.add('opacity-0');
+            }
+
+            document.getElementById('modalTitle').innerHTML = `
+                <i class="fa-solid fa-pen-to-square text-emerald-600"></i>
+                <span>EDIT MEDICINE DETAILS</span>`;
+
+            toggleModal(true, true);
+        }
+
+        // Delete Medicine Handler
+        function deleteProduct(id) {
+            if (confirm("Are you sure you want to delete this medicine product?")) {
+                medicines = medicines.filter(m => m.id !== id);
+                saveAndRender();
+                showToast("Medicine Deleted", "Item removed from inventory catalog.");
+            }
+        }
+
+        // Live Search Filter
+        function filterProducts() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = medicines.filter(m => m.name.toLowerCase().includes(query));
+            renderProducts(filtered);
+        }
+
+        // Toast Notification Helper
+        function showToast(title, message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMessage').innerText = message;
+
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+            }, 2000);
+        }
+
+        // Date Formatter
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+        }
+
+        // Google Translate Cookie Handler for 22 Languages
+        function changeLanguage(langCode) {
+            document.cookie = `googtrans=/en/${langCode}; path=/; domain=${window.location.hostname}`;
+            document.cookie = `googtrans=/en/${langCode}; path=/`;
+
+            const selectElement = document.querySelector('.goog-te-combo');
+            if (selectElement) {
+                selectElement.value = langCode;
+                selectElement.dispatchEvent(new Event('change'));
+            } else {
+                window.location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

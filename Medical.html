@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan - Medical Store Dashboard</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Google Translate Integration Script -->
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+    <style>
+        /* Fix Top Banner shifting caused by Google Translate */
+        html, body {
+            top: 0 !important;
+            position: static !important;
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .goog-te-banner-frame, 
+        .goog-te-balloon-frame,
+        .goog-te-banner,
+        iframe.skiptranslate,
+        .goog-tooltip,
+        .goog-tooltip:hover {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            width: 0 !important;
+        }
+
+        #google_translate_element {
+            display: none !important;
+        }
+
+        /* Pharmacy Background Image */
+        .bg-pharmacy {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15)), url('landing.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
+        .dark .bg-pharmacy {
+            background-image: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.85)), url('landing.png');
+        }
+
+        /* Ticker Animation for Header Slogan */
+        .ticker-container {
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .ticker-text {
+            display: inline-block;
+            padding-left: 100%;
+            animation: tickerAnimation 14s linear infinite;
+        }
+
+        @keyframes tickerAnimation {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(16, 185, 129, 0.4);
+            border-radius: 8px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(16, 185, 129, 0.7);
+        }
+    </style>
+</head>
+<body id="bodyApp" class="bg-pharmacy min-h-screen flex flex-col justify-between selection:bg-teal-500 selection:text-white transition-colors duration-300">
+
+    <!-- Hidden Container for Google Translate Core Engine -->
+    <div id="google_translate_element"></div>
+
+    <!-- 1. HEADER / NAVBAR -->
+    <header class="w-full bg-white/85 dark:bg-slate-900/90 backdrop-blur-md border-b border-white/50 dark:border-slate-800 px-4 lg:px-8 py-3.5 flex items-center justify-between shadow-sm sticky top-0 z-40 transition-colors duration-300">
+        
+        <!-- Left: Logo & Brand Name -->
+        <div class="flex items-center space-x-3 shrink-0">
+            <div class="bg-sky-600 text-white p-2.5 rounded-xl shadow-md flex items-center justify-center">
+                <i class="fa-solid fa-heart-pulse text-xl"></i>
+            </div>
+            <span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                Medi<span class="text-sky-600">Scan</span>
+            </span>
+        </div>
+
+        <!-- Center: Animated Slogan Banner -->
+        <div class="hidden md:flex flex-1 justify-center px-6">
+            <div class="text-slate-700 dark:text-slate-300 font-medium italic text-xs md:text-sm bg-sky-50/80 dark:bg-slate-800/80 px-4 py-1.5 rounded-full border border-sky-100 dark:border-slate-700 shadow-inner ticker-container flex items-center">
+                <div class="ticker-text">
+                    MediScan: Your Bridge to Health and Medicines - <span class="font-semibold text-slate-800 dark:text-white">Scan, Stock, Deliver.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Language Selector -->
+        <div class="flex items-center space-x-3 shrink-0">
+            <div class="relative flex items-center bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl px-3 py-1.5 shadow-sm hover:border-sky-500 transition">
+                <select id="langSelect" onchange="changeLanguage(this.value)" class="bg-transparent text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer pr-2">
+                    <option value="en" class="dark:bg-slate-800">English</option>
+                    <option value="hi" class="dark:bg-slate-800">हिंदी (Hindi)</option>
+                    <option value="bn" class="dark:bg-slate-800">বাংলা (Bengali)</option>
+                    <option value="te" class="dark:bg-slate-800">తెలుగు (Telugu)</option>
+                    <option value="mr" class="dark:bg-slate-800">मराठी (Marathi)</option>
+                    <option value="ta" class="dark:bg-slate-800">தமிழ் (Tamil)</option>
+                    <option value="ur" class="dark:bg-slate-800">اردو (Urdu)</option>
+                    <option value="gu" class="dark:bg-slate-800">ગુજરાતી (Gujarati)</option>
+                    <option value="kn" class="dark:bg-slate-800">Kannada</option>
+                    <option value="or" class="dark:bg-slate-800">ଓଡ଼ିଆ (Odia)</option>
+                    <option value="pa" class="dark:bg-slate-800">ਪੰਜਾਬੀ (Punjabi)</option>
+                    <option value="ml" class="dark:bg-slate-800">മലയാളം (Malayalam)</option>
+                    <option value="as" class="dark:bg-slate-800">অসমীয়া (Assamese)</option>
+                    <option value="ma" class="dark:bg-slate-800">मैथिली (Maithili)</option>
+                    <option value="sa" class="dark:bg-slate-800">संस्कृतम् (Sanskrit)</option>
+                    <option value="ne" class="dark:bg-slate-800">नेपाली (Nepali)</option>
+                    <option value="sd" class="dark:bg-slate-800">સિંધિ (Sindhi)</option>
+                    <option value="ks" class="dark:bg-slate-800">कश्मीरी (Kashmiri)</option>
+                    <option value="kok" class="dark:bg-slate-800">कोंकणी (Konkani)</option>
+                    <option value="doi" class="dark:bg-slate-800">डोगरी (Dogri)</option>
+                    <option value="mni" class="dark:bg-slate-800">मणिपुरी (Manipuri)</option>
+                    <option value="sat" class="dark:bg-slate-800">સંથાલી (Santali)</option>
+                    <option value="brx" class="dark:bg-slate-800">बोडो (Bodo)</option>
+                </select>
+                <i class="fa-solid fa-chevron-down text-slate-500 dark:text-slate-400 text-xs pointer-events-none"></i>
+            </div>
+        </div>
+
+    </header>
+
+    <!-- 2. MAIN CONTENT AREA -->
+    <main class="relative flex-grow flex flex-col md:flex-row items-start justify-between px-4 md:px-10 py-6 gap-6 min-h-[calc(100vh-115px)]">
+        
+        <!-- Dark Blur Overlay -->
+        <div class="absolute inset-0 bg-slate-900/10 dark:bg-slate-950/40 backdrop-brightness-95 pointer-events-none"></div>
+
+        <!-- TOP-LEFT CORNER AVATAR BUTTON (Dark Green theme matching "+ Add Medicine" button) -->
+        <button id="topLeftAvatarBtn" onclick="toggleStoreProfileCard()" class="relative z-30 group focus:outline-none transition-transform hover:scale-105">
+            <div id="headerAvatarCircle" class="w-20 h-20 rounded-full ring-4 ring-emerald-600/50 dark:ring-emerald-500/60 shadow-xl flex items-center justify-center overflow-hidden bg-emerald-700 dark:bg-emerald-800 border-2 border-emerald-500/80">
+                <img id="topAvatarImg" src="" class="hidden w-full h-full object-cover" alt="Profile Avatar">
+                <span id="headerAvatarInitials" class="text-2xl font-bold text-white tracking-wide">UP</span>
+            </div>
+            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 bg-emerald-800 dark:bg-emerald-700 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-md border border-emerald-500/60">
+                Profile
+            </div>
+        </button>
+
+        <!-- LEFT SIDE: MEDICAL STORE PROFILE CARD & DASHBOARD (Initially Hidden) -->
+        <aside id="storeProfileCard" onclick="handleCardClick(event)" class="hidden relative z-30 w-full md:w-80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl shadow-xl border border-white/70 dark:border-slate-800 p-5 space-y-4 shrink-0 transition-all duration-300 cursor-pointer">
+            
+            <!-- Top Right Corner Dark/Light Mode Button inside Profile Card -->
+            <div class="absolute top-4 right-4 z-10">
+                <button onclick="toggleDarkMode(event)" class="flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                    <i id="themeIcon" class="fa-solid fa-moon text-amber-500"></i>
+                    <span id="themeText">Dark</span>
+                </button>
+            </div>
+
+            <!-- Profile Info Section -->
+            <div class="flex flex-col items-center text-center border-b border-slate-200 dark:border-slate-800 pb-4 pt-2">
+                
+                <!-- Circular Profile Image Container (Matching Dark Green Theme) -->
+                <div class="relative group cursor-pointer mb-2" onclick="triggerProfileImageUpload(event)">
+                    <div id="profileImageCircle" class="w-20 h-20 rounded-full ring-4 ring-emerald-600/40 dark:ring-emerald-500/50 shadow-md flex items-center justify-center overflow-hidden bg-emerald-700 dark:bg-emerald-800 transition border-2 border-emerald-500/80">
+                        <img id="displayProfileImg" src="" class="hidden w-full h-full object-cover" alt="Store Profile">
+                        <span id="displayInitialsText" class="text-2xl font-bold text-white tracking-wide">UP</span>
+                    </div>
+                    <div class="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                        <i class="fa-solid fa-camera text-white text-base"></i>
+                    </div>
+                    <input type="file" id="profileFileInput" class="hidden" accept="image/*" onchange="uploadProfileImage(event)">
+                </div>
+
+                <!-- Dynamic Click Text (Add/Change Profile Image) -->
+                <button onclick="triggerProfileImageUpload(event)" id="profileImgStatusText" class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 hover:underline mb-2">
+                    add custom logo image
+                </button>
+
+                <!-- Dynamic Store Name & License No from Supabase/Backend Session -->
+                <h3 id="displayStoreName" class="font-bold text-slate-800 dark:text-white text-base leading-tight">Loading Store...</h3>
+                <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1 flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-circle-check text-[10px]"></i> Verified Medical Store
+                </p>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                    License No: <span id="displayLicenseNo" class="font-mono font-medium text-slate-700 dark:text-slate-300">DL-PENDING</span>
+                </p>
+            </div>
+
+            <!-- Profile Dashboard Navigation Links -->
+            <div class="space-y-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                <button type="button" onclick="openProfileEditModal(event)" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 hover:bg-emerald-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition">
+                    <span class="flex items-center space-x-2">
+                        <i class="fa-solid fa-user-pen text-emerald-600 dark:text-emerald-400"></i>
+                        <span>Edit Profile Details</span>
+                    </span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
+                </button>
+
+                <!-- DASHBOARD OPTION (Below Edit Profile Details) -->
+                <a href="#dashboard" onclick="event.stopPropagation()" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 dark:bg-slate-800/90 hover:bg-emerald-100 dark:hover:bg-slate-800 text-emerald-800 dark:text-emerald-400 transition">
+                    <span class="flex items-center space-x-2">
+                        <i class="fa-solid fa-chart-line text-emerald-600 dark:text-emerald-400"></i>
+                        <span>Dashboard</span>
+                    </span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-emerald-500"></i>
+                </a>
+
+                <div class="p-3 rounded-xl bg-emerald-50/60 dark:bg-slate-800/40 border border-emerald-100 dark:border-slate-800 space-y-2">
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span class="text-slate-500 dark:text-slate-400">Active Medicines In Stock:</span>
+                        <span class="font-bold text-emerald-700 dark:text-emerald-400">0 Items</span>
+                    </div>
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span class="text-slate-500 dark:text-slate-400">Pending Orders:</span>
+                        <span class="font-bold text-amber-600 dark:text-amber-400">0 Orders</span>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <!-- TOP RIGHT FLOATING BUTTON: "+ Add Medicine" -->
+        <div class="absolute top-4 right-4 md:top-6 md:right-8 z-30">
+            <button onclick="toggleMedicineModal(true)" class="bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-medium px-5 py-2.5 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 flex items-center space-x-2 text-sm md:text-base border border-emerald-600/50">
+                <i class="fa-solid fa-plus"></i>
+                <span>Add Medicine</span>
+            </button>
+        </div>
+
+        <!-- 3. MEDICINE ENTRY CARD (MODAL POPUP) -->
+        <div id="medicineModal" class="hidden opacity-0 scale-95 relative z-30 w-full max-w-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/70 dark:border-slate-800 overflow-hidden transition-all duration-300 my-auto ml-0 md:ml-auto">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between bg-white/60 dark:bg-slate-900/60">
+                <h2 class="text-lg md:text-xl font-bold text-slate-800 dark:text-white tracking-wide">
+                    ADD NEW MEDICINE DETAILS
+                </h2>
+                <button onclick="toggleMedicineModal(false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg hover:bg-slate-200/50 dark:hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form Body -->
+            <form id="medicineForm" onsubmit="handleFormSubmit(event)" class="p-6 space-y-5 max-h-[72vh] overflow-y-auto custom-scroll text-slate-700 dark:text-slate-200">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                    
+                    <div class="md:col-span-1">
+                        <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Medicine Image</label>
+                        <div onclick="document.getElementById('fileInput').click()" 
+                             class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer bg-slate-50/60 dark:bg-slate-800/40 hover:bg-emerald-50/40 transition text-center group h-36 relative overflow-hidden">
+                            
+                            <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="previewImage(event)">
+                            <div id="uploadPlaceholder" class="flex flex-col items-center">
+                                <div class="w-12 h-12 rounded-full bg-slate-200/70 dark:bg-slate-700/70 group-hover:bg-emerald-100 flex items-center justify-center mb-2 transition">
+                                    <i class="fa-solid fa-camera text-slate-500 dark:text-slate-300 group-hover:text-emerald-600 text-xl"></i>
+                                </div>
+                                <span class="text-xs font-medium text-slate-600 dark:text-slate-300 group-hover:text-emerald-700">Medicine Image Upload</span>
+                            </div>
+                            <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover rounded-xl" alt="Preview">
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-2 space-y-4">
+                        <div>
+                            <label for="medName" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Medicine Name <span class="text-red-500">*</span></label>
+                            <input type="text" id="medName" required placeholder="e.g. Paracetamol 500mg" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition shadow-sm">
+                        </div>
+
+                        <div class="grid grid-cols-3 gap-2 sm:gap-3">
+                            <div>
+                                <label for="medStock" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Stock</label>
+                                <input type="number" id="medStock" min="0" placeholder="100" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition shadow-sm">
+                            </div>
+                            <div>
+                                <label for="medPrice" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Price (₹)</label>
+                                <input type="number" id="medPrice" min="0" step="0.01" placeholder="45.00" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition shadow-sm">
+                            </div>
+                            <div>
+                                <label for="medExpiry" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Expiry Date</label>
+                                <input type="date" id="medExpiry" required class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition shadow-sm">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <hr class="border-slate-200/80 dark:border-slate-800">
+
+                <div class="space-y-3">
+                    <h3 class="text-xs uppercase tracking-wider font-bold text-slate-500 dark:text-slate-400">Dosage Instructions & Usage</h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="dosageTiming" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Dosage Timing</label>
+                            <select id="dosageTiming" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition shadow-sm">
+                                <option value="Before Meal">Before Meal (Khane se Pehle)</option>
+                                <option value="After Meal" selected>After Meal (Khane ke Baad)</option>
+                                <option value="With Meal">With Meal (Khane ke Saath)</option>
+                                <option value="Empty Stomach">Empty Stomach (Khali Pet)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label for="dailyFrequency" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Daily Frequency</label>
+                            <div class="flex items-center space-x-2">
+                                <input type="number" id="dailyFrequency" min="1" max="10" placeholder="2" class="w-24 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition shadow-sm">
+                                <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">times per day</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2 flex items-center justify-end space-x-3">
+                    <button type="button" onclick="toggleMedicineModal(false)" class="bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold px-5 py-2 rounded-lg text-sm transition">
+                        CANCEL
+                    </button>
+                    <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 dark:bg-emerald-600 dark:hover:bg-emerald-700 text-white font-semibold px-6 py-2 rounded-lg text-sm shadow-md hover:shadow-lg transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>SAVE & UPLOAD</span>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+        <!-- 4. STABLE EDIT STORE PROFILE MODAL -->
+        <div id="profileEditModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-opacity duration-300">
+            <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative">
+                <button type="button" onclick="closeProfileEditModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+
+                <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-store text-sky-600"></i> Edit Medical Store Profile
+                </h3>
+
+                <form onsubmit="saveProfileChanges(event)" class="space-y-4 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                    <div>
+                        <label class="block mb-1">Medical Store Name</label>
+                        <input type="text" id="editStoreName" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-xs text-slate-800 dark:text-white">
+                    </div>
+
+                    <div>
+                        <label class="block mb-1">Drug License Number</label>
+                        <input type="text" id="editLicenseNo" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg p-2.5 text-xs font-mono text-slate-800 dark:text-white">
+                    </div>
+
+                    <div class="flex justify-end space-x-2 pt-2">
+                        <button type="button" onclick="closeProfileEditModal()" class="px-4 py-2 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300">Cancel</button>
+                        <button type="submit" class="px-5 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Success Toast Notification -->
+        <div id="toast" class="fixed bottom-12 right-6 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3 opacity-0 pointer-events-none transition-all duration-300 z-50 transform translate-y-4">
+            <i class="fa-solid fa-circle-check text-emerald-400 text-xl"></i>
+            <div>
+                <p id="toastTitle" class="text-sm font-semibold">Medicine Saved Successfully!</p>
+                <p id="toastDesc" class="text-xs text-slate-300">Added to inventory catalog.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 5. FOOTER -->
+    <footer class="w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md text-slate-600 dark:text-slate-400 text-center py-3 text-xs font-medium border-t border-white/50 dark:border-slate-800 z-30 transition-colors duration-300">
+        <p>© 2026 MediScan Health Tech. Smart Stock & Prescription Verification System.</p>
+    </footer>
+
+    <!-- INTERACTIVE JAVASCRIPT -->
+    <script>
+        // Load logged-in store session saved from landing.html
+        let storeSession = JSON.parse(sessionStorage.getItem('medical_store_user')) || {
+            store_name: "Unati Pharmacy",
+            drug_license: "25802580",
+            profile_image: ""
+        };
+
+        // Helper function: Generate Initials from Store Name
+        function getInitials(name) {
+            if (!name) return "MS";
+            const parts = name.trim().split(/\s+/);
+            if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+            return (parts[0][0] + parts[1][0]).toUpperCase();
+        }
+
+        // Toggle Side Profile Card & Avatar Button
+        function toggleStoreProfileCard() {
+            const card = document.getElementById('storeProfileCard');
+            const avatarBtn = document.getElementById('topLeftAvatarBtn');
+            
+            if (card.classList.contains('hidden')) {
+                card.classList.remove('hidden');
+                avatarBtn.classList.add('hidden');
+            } else {
+                card.classList.add('hidden');
+                avatarBtn.classList.remove('hidden');
+            }
+        }
+
+        // Handle Card Blank Space Click (Close card on clicking empty area)
+        function handleCardClick(event) {
+            const interactive = event.target.closest('button, input, a, select, label');
+            if (!interactive) {
+                toggleStoreProfileCard();
+            }
+        }
+
+        // Dark Mode Toggle Inside Profile Card
+        function toggleDarkMode(event) {
+            if (event) event.stopPropagation();
+            const isDark = document.documentElement.classList.toggle('dark');
+            const icon = document.getElementById('themeIcon');
+            const text = document.getElementById('themeText');
+            
+            if (isDark) {
+                icon.className = "fa-solid fa-sun text-amber-400";
+                text.innerText = "Light";
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.className = "fa-solid fa-moon text-amber-500";
+                text.innerText = "Dark";
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // Initialize Store Data & Expiry Limits On Load
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            const expiryInput = document.getElementById('medExpiry');
+            if (expiryInput) {
+                expiryInput.setAttribute('min', today);
+            }
+
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('themeIcon').className = "fa-solid fa-sun text-amber-400";
+                document.getElementById('themeText').innerText = "Light";
+            }
+
+            renderProfileCardUI();
+        });
+
+        // Render Profile UI dynamically based on Backend Session
+        function renderProfileCardUI() {
+            const storeName = storeSession.store_name || "Medical Store";
+            const initials = getInitials(storeName);
+
+            document.getElementById('displayStoreName').innerText = storeName;
+            document.getElementById('displayLicenseNo').innerText = storeSession.drug_license || "N/A";
+
+            // Top Avatar
+            document.getElementById('headerAvatarInitials').innerText = initials;
+            
+            const topImgElem = document.getElementById('topAvatarImg');
+            const imgElem = document.getElementById('displayProfileImg');
+            const initialsElem = document.getElementById('displayInitialsText');
+            const statusText = document.getElementById('profileImgStatusText');
+
+            if (storeSession.profile_image) {
+                topImgElem.src = storeSession.profile_image;
+                topImgElem.classList.remove('hidden');
+                document.getElementById('headerAvatarInitials').classList.add('hidden');
+
+                imgElem.src = storeSession.profile_image;
+                imgElem.classList.remove('hidden');
+                initialsElem.classList.add('hidden');
+                statusText.innerText = "change custom logo image";
+            } else {
+                topImgElem.classList.add('hidden');
+                document.getElementById('headerAvatarInitials').innerText = initials;
+                document.getElementById('headerAvatarInitials').classList.remove('hidden');
+
+                imgElem.classList.add('hidden');
+                initialsElem.innerText = initials;
+                initialsElem.classList.remove('hidden');
+                statusText.innerText = "add custom logo image";
+            }
+        }
+
+        // Trigger Profile Photo Selection
+        function triggerProfileImageUpload(event) {
+            if (event) event.stopPropagation();
+            document.getElementById('profileFileInput').click();
+        }
+
+        // Upload Profile Photo Handler
+        function uploadProfileImage(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    storeSession.profile_image = e.target.result;
+                    sessionStorage.setItem('medical_store_user', JSON.stringify(storeSession));
+                    renderProfileCardUI();
+                    showToast('Profile Image Updated!', 'Your avatar has been uploaded.');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Language Translator Handler
+        function changeLanguage(langCode) {
+            document.cookie = `googtrans=/en/${langCode}; path=/; domain=${window.location.hostname}`;
+            document.cookie = `googtrans=/en/${langCode}; path=/`;
+
+            const selectElement = document.querySelector('.goog-te-combo');
+            if (selectElement) {
+                selectElement.value = langCode;
+                selectElement.dispatchEvent(new Event('change'));
+            } else {
+                window.location.reload();
+            }
+        }
+
+        // Toggle Medicine Modal
+        function toggleMedicineModal(show) {
+            closeProfileEditModal(); 
+            const modal = document.getElementById('medicineModal');
+
+            if (show) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('scale-95', 'opacity-0');
+                    modal.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            } else {
+                modal.classList.remove('scale-100', 'opacity-100');
+                modal.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 200);
+            }
+        }
+
+        // Stable Profile Edit Modal Controls
+        function openProfileEditModal(event) {
+            if (event) event.stopPropagation();
+            toggleMedicineModal(false); 
+
+            document.getElementById('editStoreName').value = storeSession.store_name || "";
+            document.getElementById('editLicenseNo').value = storeSession.drug_license || "";
+
+            const pModal = document.getElementById('profileEditModal');
+            pModal.classList.remove('hidden');
+        }
+
+        function closeProfileEditModal() {
+            const pModal = document.getElementById('profileEditModal');
+            pModal.classList.add('hidden');
+        }
+
+        function saveProfileChanges(e) {
+            e.preventDefault();
+            const name = document.getElementById('editStoreName').value;
+            const lic = document.getElementById('editLicenseNo').value;
+
+            storeSession.store_name = name;
+            storeSession.drug_license = lic;
+
+            sessionStorage.setItem('medical_store_user', JSON.stringify(storeSession));
+            renderProfileCardUI();
+
+            closeProfileEditModal();
+            showToast('Profile Updated!', 'Medical store details saved.');
+        }
+
+        // Medicine Image Upload Preview Handler
+        function previewImage(event) {
+            const input = event.target;
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('imagePreview');
+                    const placeholder = document.getElementById('uploadPlaceholder');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    placeholder.classList.add('opacity-0');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Toast Message Handler
+        function showToast(title, desc) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastDesc').innerText = desc;
+
+            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-4');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-4');
+            }, 2000);
+        }
+
+        // Form Submission Handler
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            showToast('Medicine Saved Successfully!', 'Added to inventory catalog.');
+
+            setTimeout(() => {
+                toggleMedicineModal(false);
+                document.getElementById('medicineForm').reset();
+                document.getElementById('imagePreview').classList.add('hidden');
+                document.getElementById('uploadPlaceholder').classList.remove('opacity-0');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
