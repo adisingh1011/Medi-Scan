@@ -173,7 +173,7 @@
         <!-- Dark Blur Overlay -->
         <div class="absolute inset-0 bg-slate-900/10 dark:bg-slate-950/40 backdrop-brightness-95 pointer-events-none"></div>
 
-        <!-- TOP-LEFT CORNER AVATAR BUTTON (Dark Green theme matching "+ Add Medicine" button) -->
+        <!-- TOP-LEFT CORNER AVATAR BUTTON -->
         <button id="topLeftAvatarBtn" onclick="toggleStoreProfileCard()" class="relative z-30 group focus:outline-none transition-transform hover:scale-105">
             <div id="headerAvatarCircle" class="w-20 h-20 rounded-full ring-4 ring-emerald-600/50 dark:ring-emerald-500/60 shadow-xl flex items-center justify-center overflow-hidden bg-emerald-700 dark:bg-emerald-800 border-2 border-emerald-500/80">
                 <img id="topAvatarImg" src="" class="hidden w-full h-full object-cover" alt="Profile Avatar">
@@ -184,10 +184,9 @@
             </div>
         </button>
 
-        <!-- LEFT SIDE: MEDICAL STORE PROFILE CARD & DASHBOARD (Initially Hidden) -->
+        <!-- LEFT SIDE: MEDICAL STORE PROFILE CARD & DASHBOARD -->
         <aside id="storeProfileCard" onclick="handleCardClick(event)" class="hidden relative z-30 w-full md:w-80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-3xl shadow-xl border border-white/70 dark:border-slate-800 p-5 space-y-4 shrink-0 transition-all duration-300 cursor-pointer">
             
-            <!-- Top Right Corner Dark/Light Mode Button inside Profile Card -->
             <div class="absolute top-4 right-4 z-10">
                 <button onclick="toggleDarkMode(event)" class="flex items-center space-x-1.5 bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-2.5 py-1 rounded-xl text-[11px] font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
                     <i id="themeIcon" class="fa-solid fa-moon text-amber-500"></i>
@@ -195,10 +194,7 @@
                 </button>
             </div>
 
-            <!-- Profile Info Section -->
             <div class="flex flex-col items-center text-center border-b border-slate-200 dark:border-slate-800 pb-4 pt-2">
-                
-                <!-- Circular Profile Image Container (Matching Dark Green Theme) -->
                 <div class="relative group cursor-pointer mb-2" onclick="triggerProfileImageUpload(event)">
                     <div id="profileImageCircle" class="w-20 h-20 rounded-full ring-4 ring-emerald-600/40 dark:ring-emerald-500/50 shadow-md flex items-center justify-center overflow-hidden bg-emerald-700 dark:bg-emerald-800 transition border-2 border-emerald-500/80">
                         <img id="displayProfileImg" src="" class="hidden w-full h-full object-cover" alt="Store Profile">
@@ -210,12 +206,10 @@
                     <input type="file" id="profileFileInput" class="hidden" accept="image/*" onchange="uploadProfileImage(event)">
                 </div>
 
-                <!-- Dynamic Click Text (Add/Change Profile Image) -->
                 <button onclick="triggerProfileImageUpload(event)" id="profileImgStatusText" class="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 hover:underline mb-2">
                     add custom logo image
                 </button>
 
-                <!-- Dynamic Store Name & License No from Supabase/Backend Session -->
                 <h3 id="displayStoreName" class="font-bold text-slate-800 dark:text-white text-base leading-tight">Loading Store...</h3>
                 <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mt-1 flex items-center justify-center gap-1">
                     <i class="fa-solid fa-circle-check text-[10px]"></i> Verified Medical Store
@@ -225,7 +219,6 @@
                 </p>
             </div>
 
-            <!-- Profile Dashboard Navigation Links -->
             <div class="space-y-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
                 <button type="button" onclick="openProfileEditModal(event)" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 hover:bg-emerald-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 transition">
                     <span class="flex items-center space-x-2">
@@ -235,7 +228,6 @@
                     <i class="fa-solid fa-chevron-right text-[10px] text-slate-400"></i>
                 </button>
 
-                <!-- DASHBOARD OPTION (Below Edit Profile Details) -->
                 <a href="#dashboard" onclick="event.stopPropagation()" class="w-full flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 dark:bg-slate-800/90 hover:bg-emerald-100 dark:hover:bg-slate-800 text-emerald-800 dark:text-emerald-400 transition">
                     <span class="flex items-center space-x-2">
                         <i class="fa-solid fa-chart-line text-emerald-600 dark:text-emerald-400"></i>
@@ -247,7 +239,7 @@
                 <div class="p-3 rounded-xl bg-emerald-50/60 dark:bg-slate-800/40 border border-emerald-100 dark:border-slate-800 space-y-2">
                     <div class="flex justify-between items-center text-[11px]">
                         <span class="text-slate-500 dark:text-slate-400">Active Medicines In Stock:</span>
-                        <span class="font-bold text-emerald-700 dark:text-emerald-400">0 Items</span>
+                        <span id="activeCountProfile" class="font-bold text-emerald-700 dark:text-emerald-400">0 Items</span>
                     </div>
                     <div class="flex justify-between items-center text-[11px]">
                         <span class="text-slate-500 dark:text-slate-400">Pending Orders:</span>
@@ -269,7 +261,6 @@
         <!-- 3. MEDICINE ENTRY CARD (MODAL POPUP) -->
         <div id="medicineModal" class="hidden opacity-0 scale-95 relative z-30 w-full max-w-2xl bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/70 dark:border-slate-800 overflow-hidden transition-all duration-300 my-auto ml-0 md:ml-auto">
             
-            <!-- Modal Header -->
             <div class="px-6 py-4 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between bg-white/60 dark:bg-slate-900/60">
                 <h2 class="text-lg md:text-xl font-bold text-slate-800 dark:text-white tracking-wide">
                     ADD NEW MEDICINE DETAILS
@@ -279,7 +270,6 @@
                 </button>
             </div>
 
-            <!-- Modal Form Body -->
             <form id="medicineForm" onsubmit="handleFormSubmit(event)" class="p-6 space-y-5 max-h-[72vh] overflow-y-auto custom-scroll text-slate-700 dark:text-slate-200">
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
@@ -333,10 +323,10 @@
                         <div>
                             <label for="dosageTiming" class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Dosage Timing</label>
                             <select id="dosageTiming" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition shadow-sm">
-                                <option value="Before Meal">Before Meal (Khane se Pehle)</option>
-                                <option value="After Meal" selected>After Meal (Khane ke Baad)</option>
-                                <option value="With Meal">With Meal (Khane ke Saath)</option>
-                                <option value="Empty Stomach">Empty Stomach (Khali Pet)</option>
+                                <option value="Before Meal (Khane se Pehle)">Before Meal (Khane se Pehle)</option>
+                                <option value="After Meal (Khane ke Baad)" selected>After Meal (Khane ke Baad)</option>
+                                <option value="With Meal (Khane ke Saath)">With Meal (Khane ke Saath)</option>
+                                <option value="Empty Stomach (Khali Pet)">Empty Stomach (Khali Pet)</option>
                             </select>
                         </div>
 
@@ -411,14 +401,22 @@
 
     <!-- INTERACTIVE JAVASCRIPT -->
     <script>
-        // Load logged-in store session saved from landing.html
+        // Supabase Initialization
+        const SUPABASE_URL = "https://YOUR_SUPABASE_PROJECT.supabase.co"; // Replace with your Supabase URL
+        const SUPABASE_KEY = "YOUR_SUPABASE_ANON_KEY"; // Replace with your Supabase Anon Key
+        let dbClient = null;
+        if(window.supabase && SUPABASE_URL !== "https://YOUR_SUPABASE_PROJECT.supabase.co") {
+            dbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        }
+
+        let currentImageBase64 = "";
+
         let storeSession = JSON.parse(sessionStorage.getItem('medical_store_user')) || {
             store_name: "Unati Pharmacy",
             drug_license: "25802580",
             profile_image: ""
         };
 
-        // Helper function: Generate Initials from Store Name
         function getInitials(name) {
             if (!name) return "MS";
             const parts = name.trim().split(/\s+/);
@@ -426,7 +424,6 @@
             return (parts[0][0] + parts[1][0]).toUpperCase();
         }
 
-        // Toggle Side Profile Card & Avatar Button
         function toggleStoreProfileCard() {
             const card = document.getElementById('storeProfileCard');
             const avatarBtn = document.getElementById('topLeftAvatarBtn');
@@ -440,7 +437,6 @@
             }
         }
 
-        // Handle Card Blank Space Click (Close card on clicking empty area)
         function handleCardClick(event) {
             const interactive = event.target.closest('button, input, a, select, label');
             if (!interactive) {
@@ -448,7 +444,6 @@
             }
         }
 
-        // Dark Mode Toggle Inside Profile Card
         function toggleDarkMode(event) {
             if (event) event.stopPropagation();
             const isDark = document.documentElement.classList.toggle('dark');
@@ -466,7 +461,6 @@
             }
         }
 
-        // Initialize Store Data & Expiry Limits On Load
         window.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toISOString().split('T')[0];
             const expiryInput = document.getElementById('medExpiry');
@@ -481,9 +475,14 @@
             }
 
             renderProfileCardUI();
+            updateItemCount();
         });
 
-        // Render Profile UI dynamically based on Backend Session
+        function updateItemCount() {
+            let meds = JSON.parse(localStorage.getItem('mediscan_medicines_v3')) || [];
+            document.getElementById('activeCountProfile').innerText = `${meds.length} Items`;
+        }
+
         function renderProfileCardUI() {
             const storeName = storeSession.store_name || "Medical Store";
             const initials = getInitials(storeName);
@@ -491,7 +490,6 @@
             document.getElementById('displayStoreName').innerText = storeName;
             document.getElementById('displayLicenseNo').innerText = storeSession.drug_license || "N/A";
 
-            // Top Avatar
             document.getElementById('headerAvatarInitials').innerText = initials;
             
             const topImgElem = document.getElementById('topAvatarImg');
@@ -520,13 +518,11 @@
             }
         }
 
-        // Trigger Profile Photo Selection
         function triggerProfileImageUpload(event) {
             if (event) event.stopPropagation();
             document.getElementById('profileFileInput').click();
         }
 
-        // Upload Profile Photo Handler
         function uploadProfileImage(event) {
             const input = event.target;
             if (input.files && input.files[0]) {
@@ -541,7 +537,6 @@
             }
         }
 
-        // Language Translator Handler
         function changeLanguage(langCode) {
             document.cookie = `googtrans=/en/${langCode}; path=/; domain=${window.location.hostname}`;
             document.cookie = `googtrans=/en/${langCode}; path=/`;
@@ -555,7 +550,6 @@
             }
         }
 
-        // Toggle Medicine Modal
         function toggleMedicineModal(show) {
             closeProfileEditModal(); 
             const modal = document.getElementById('medicineModal');
@@ -575,7 +569,6 @@
             }
         }
 
-        // Stable Profile Edit Modal Controls
         function openProfileEditModal(event) {
             if (event) event.stopPropagation();
             toggleMedicineModal(false); 
@@ -607,15 +600,15 @@
             showToast('Profile Updated!', 'Medical store details saved.');
         }
 
-        // Medicine Image Upload Preview Handler
         function previewImage(event) {
             const input = event.target;
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
+                    currentImageBase64 = e.target.result;
                     const img = document.getElementById('imagePreview');
                     const placeholder = document.getElementById('uploadPlaceholder');
-                    img.src = e.target.result;
+                    img.src = currentImageBase64;
                     img.classList.remove('hidden');
                     placeholder.classList.add('opacity-0');
                 }
@@ -623,7 +616,6 @@
             }
         }
 
-        // Toast Message Handler
         function showToast(title, desc) {
             const toast = document.getElementById('toast');
             document.getElementById('toastTitle').innerText = title;
@@ -638,9 +630,63 @@
             }, 2000);
         }
 
-        // Form Submission Handler
-        function handleFormSubmit(e) {
+        // Form Submission Handler: LocalStorage + Supabase DB Integration
+        async function handleFormSubmit(e) {
             e.preventDefault();
+
+            const name = document.getElementById('medName').value.trim();
+            const stock = parseInt(document.getElementById('medStock').value) || 0;
+            const price = parseFloat(document.getElementById('medPrice').value) || 0;
+            const expiry = document.getElementById('medExpiry').value;
+            const dosageTiming = document.getElementById('dosageTiming').value;
+            const dailyFrequency = parseInt(document.getElementById('dailyFrequency').value) || 1;
+            
+            const imageToUse = currentImageBase64 || 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=600';
+
+            const newMedicine = {
+                id: 'med-' + Date.now(),
+                name: name,
+                stock: stock,
+                price: price,
+                mrp: price > 0 ? (price * 1.25).toFixed(2) : (price * 1.25),
+                expiry: expiry,
+                dosageTiming: dosageTiming,
+                dailyFrequency: dailyFrequency,
+                sideEffects: 'None specified.',
+                image: imageToUse,
+                likes: 0,
+                views: 0,
+                isLiked: false
+            };
+
+            // 1. Save to LocalStorage
+            let meds = JSON.parse(localStorage.getItem('mediscan_medicines_v3')) || [];
+            meds.unshift(newMedicine);
+            localStorage.setItem('mediscan_medicines_v3', JSON.stringify(meds));
+
+            // 2. Save to Supabase DB (If configured)
+            if (dbClient) {
+                try {
+                    await dbClient.from('medicines').insert([{
+                        id: newMedicine.id,
+                        name: newMedicine.name,
+                        stock: newMedicine.stock,
+                        price: newMedicine.price,
+                        mrp: newMedicine.mrp,
+                        expiry: newMedicine.expiry,
+                        dosage_timing: newMedicine.dosageTiming,
+                        daily_frequency: newMedicine.dailyFrequency,
+                        side_effects: newMedicine.sideEffects,
+                        image: newMedicine.image,
+                        likes: 0,
+                        views: 0
+                    }]);
+                } catch(err) {
+                    console.log("Supabase insert note:", err);
+                }
+            }
+
+            updateItemCount();
             showToast('Medicine Saved Successfully!', 'Added to inventory catalog.');
 
             setTimeout(() => {
@@ -648,7 +694,8 @@
                 document.getElementById('medicineForm').reset();
                 document.getElementById('imagePreview').classList.add('hidden');
                 document.getElementById('uploadPlaceholder').classList.remove('opacity-0');
-            }, 2000);
+                currentImageBase64 = "";
+            }, 1000);
         }
     </script>
 </body>
