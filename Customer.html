@@ -190,11 +190,6 @@
                     <span id="activeCountBadge" class="hidden sm:inline-block bg-sky-100 dark:bg-slate-800 text-sky-800 dark:text-sky-400 text-xs font-bold px-3 py-1.5 rounded-lg border border-sky-200 dark:border-slate-700">
                         3 Active Products
                     </span>
-
-                    <button onclick="toggleModal(true)" class="hidden md:flex bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-200 font-semibold px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs items-center gap-1.5 transition" title="Add New Medicine">
-                        <i class="fa-solid fa-plus text-emerald-600"></i>
-                        <span>Add Stock</span>
-                    </button>
                 </div>
 
                 <!-- Center: Search Input -->
@@ -257,7 +252,7 @@
                 </div>
             </div>
 
-            <!-- E-COMMERCE STYLE PRODUCT CATALOG GRID (IMAGE 3 MATCHING) -->
+            <!-- E-COMMERCE STYLE PRODUCT CATALOG GRID -->
             <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <!-- Dynamic Medicine Cards Injected Here -->
             </div>
@@ -268,11 +263,7 @@
                     <i class="fa-solid fa-prescription-bottle-medical text-3xl"></i>
                 </div>
                 <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-1">No Medicines Found</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">Start by adding your first medicine or clear your search filter.</p>
-                <button onclick="toggleModal(true)" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md transition inline-flex items-center gap-2 text-sm">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Add New Medicine</span>
-                </button>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mb-5">Please clear your search filter or check back later.</p>
             </div>
 
         </div>
@@ -322,114 +313,7 @@
             </div>
         </div>
 
-        <!-- 4. ADD / EDIT MEDICINE MODAL FORM -->
-        <div id="medicineModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm transition-all duration-300">
-            <div class="relative w-full max-w-2xl bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transition-all duration-300 max-h-[90vh] flex flex-col">
-                
-                <div class="px-6 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
-                    <h2 id="modalTitle" class="text-lg md:text-xl font-extrabold text-slate-800 dark:text-white tracking-wide flex items-center gap-2">
-                        <i class="fa-solid fa-prescription-bottle-medical text-emerald-600 dark:text-emerald-400"></i>
-                        <span>ADD NEW MEDICINE DETAILS</span>
-                    </h2>
-                    <button onclick="toggleModal(false)" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition">
-                        <i class="fa-solid fa-xmark text-xl"></i>
-                    </button>
-                </div>
-
-                <form id="medicineForm" onsubmit="handleFormSubmit(event)" class="p-6 space-y-5 overflow-y-auto custom-scroll text-slate-700 dark:text-slate-200 flex-1">
-                    <input type="hidden" id="editId">
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-                        <div class="md:col-span-1">
-                            <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-1">Medicine Image</label>
-                            <div onclick="document.getElementById('fileInput').click()" 
-                                 class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer bg-slate-50 dark:bg-slate-800/40 hover:bg-emerald-50/40 transition text-center group h-36 relative overflow-hidden">
-                                
-                                <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="previewImage(event)">
-                                <div id="uploadPlaceholder" class="flex flex-col items-center">
-                                    <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700 group-hover:bg-emerald-100 flex items-center justify-center mb-2 transition">
-                                        <i class="fa-solid fa-camera text-slate-500 dark:text-slate-400 group-hover:text-emerald-600 text-lg"></i>
-                                    </div>
-                                    <span class="text-xs font-semibold text-slate-600 dark:text-slate-300 group-hover:text-emerald-700">Medicine Image Upload</span>
-                                </div>
-                                <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover rounded-xl" alt="Preview">
-                            </div>
-                        </div>
-
-                        <div class="md:col-span-2 space-y-4">
-                            <div>
-                                <label for="medName" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Medicine Name <span class="text-red-500">*</span></label>
-                                <input type="text" id="medName" required placeholder="e.g. Paracetamol 500mg" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm dark:text-white">
-                            </div>
-
-                            <div class="grid grid-cols-3 gap-2 sm:gap-3">
-                                <div>
-                                    <label for="medStock" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Stock</label>
-                                    <input type="number" id="medStock" min="0" placeholder="100" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm dark:text-white">
-                                </div>
-                                <div>
-                                    <label for="medPrice" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Price (₹)</label>
-                                    <input type="number" id="medPrice" min="0" step="0.01" placeholder="45.00" required class="w-full bg-slate-50 dark:bg-slate-800 border border-emerald-500/70 border-2 rounded-lg px-2.5 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm dark:text-white">
-                                </div>
-                                <div>
-                                    <label for="medExpiry" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Expiry Date</label>
-                                    <input type="date" id="medExpiry" required class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-2 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm dark:text-white">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr class="border-slate-200 dark:border-slate-800">
-
-                    <div class="space-y-3">
-                        <h3 class="text-xs uppercase tracking-wider font-extrabold text-slate-500 dark:text-slate-400">Dosage Instructions & Usage</h3>
-                        
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <label for="dosageTiming" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Dosage Timing</label>
-                                <select id="dosageTiming" class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm dark:text-white">
-                                    <option value="After Meal (Khane ke Baad)" selected>After Meal (Khane ke Baad)</option>
-                                    <option value="Before Meal (Khane se Pehle)">Before Meal (Khane se Pehle)</option>
-                                    <option value="With Meal (Khane ke Saath)">With Meal (Khane ke Saath)</option>
-                                    <option value="Empty Stomach (Khali Pet)">Empty Stomach (Khali Pet)</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label for="dailyFrequency" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Daily Frequency</label>
-                                <div class="flex items-center space-x-2">
-                                    <input type="number" id="dailyFrequency" min="1" max="10" value="2" required class="w-24 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm dark:text-white">
-                                    <span class="text-xs text-slate-500 dark:text-slate-400 font-medium">times per day</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <hr class="border-slate-200 dark:border-slate-800">
-
-                    <div class="space-y-3">
-                        <h3 class="text-xs uppercase tracking-wider font-extrabold text-slate-500 dark:text-slate-400">Product Description & Notes</h3>
-                        <div>
-                            <label for="sideEffects" class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Side Effects & Notes</label>
-                            <textarea id="sideEffects" rows="2" placeholder="e.g. Mild drowsiness, take with plenty of water..." class="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 transition shadow-sm resize-none dark:text-white"></textarea>
-                        </div>
-                    </div>
-
-                    <div class="pt-2 flex items-center justify-end space-x-3 border-t border-slate-200 dark:border-slate-800">
-                        <button type="button" onclick="toggleModal(false)" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold px-5 py-2 rounded-xl text-sm transition">
-                            CANCEL
-                        </button>
-                        <button type="submit" class="bg-emerald-700 hover:bg-emerald-800 text-white font-semibold px-6 py-2 rounded-xl text-sm shadow-md hover:shadow-lg transition flex items-center gap-2">
-                            <i class="fa-solid fa-cloud-arrow-up"></i>
-                            <span>SAVE & UPLOAD</span>
-                        </button>
-                    </div>
-
-                </form>
-            </div>
-        </div>
-
-        <!-- 5. PRODUCT VIEW DETAILS POPUP (IMAGE 4 MATCHING MODAL) -->
+        <!-- 4. PRODUCT VIEW DETAILS POPUP -->
         <div id="productDetailModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-md">
             <div id="productDetailContent" class="bg-white dark:bg-slate-900 rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 relative max-h-[90vh] overflow-y-auto custom-scroll">
                 <!-- Inserted Dynamically -->
@@ -447,7 +331,7 @@
 
     </main>
 
-    <!-- 6. FOOTER -->
+    <!-- 5. FOOTER -->
     <footer class="w-full bg-slate-900 text-slate-400 text-center py-3 text-xs border-t border-slate-800 z-30">
         <p>© 2026 MediScan Health Tech. Smart Stock & E-Commerce Prescription System.</p>
     </footer>
@@ -512,7 +396,6 @@
 
         let medicines = [];
         let basket = JSON.parse(localStorage.getItem('mediscan_basket')) || [];
-        let currentUploadedImage = '';
 
         // Fetch Data from Supabase DB or LocalStorage Fallback
         async function fetchMedicinesData() {
@@ -583,7 +466,7 @@
             document.getElementById('statTotalLikes').innerText = totalLikes;
         }
 
-        // Render E-Commerce Style Cards (IMAGE 3 MATCHING)
+        // Render E-Commerce Style Cards
         function renderProducts(items) {
             const grid = document.getElementById('productGrid');
             const emptyState = document.getElementById('emptyState');
@@ -679,13 +562,6 @@
                                 <i class="fa-solid fa-eye text-xs text-sky-400"></i>
                                 View Product
                             </button>
-
-                            <button onclick="editProduct('${med.id}')" class="p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 transition" title="Edit Medicine">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </button>
-                            <button onclick="deleteProduct('${med.id}')" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-xl border border-red-200 dark:border-red-900/50 transition" title="Delete Medicine">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
                         </div>
 
                     </div>
@@ -694,7 +570,7 @@
             }).join('');
         }
 
-        // View Product Details Popup Modal Handler (IMAGE 4 MATCHING)
+        // View Product Details Popup Modal Handler
         function viewProductDetails(id) {
             const index = medicines.findIndex(m => m.id === id);
             if (index === -1) return;
@@ -935,132 +811,6 @@
             } else {
                 icon.className = 'fa-solid fa-moon text-amber-500';
                 label.innerText = 'Dark Mode';
-            }
-        }
-
-        function toggleModal(show, isEdit = false) {
-            const modal = document.getElementById('medicineModal');
-            if (show) {
-                if (!isEdit) {
-                    document.getElementById('medicineForm').reset();
-                    document.getElementById('editId').value = '';
-                    document.getElementById('modalTitle').innerHTML = `
-                        <i class="fa-solid fa-prescription-bottle-medical text-emerald-600"></i>
-                        <span>ADD NEW MEDICINE DETAILS</span>`;
-                    document.getElementById('imagePreview').classList.add('hidden');
-                    document.getElementById('uploadPlaceholder').classList.remove('opacity-0');
-                    currentUploadedImage = '';
-                }
-                modal.classList.remove('hidden');
-            } else {
-                modal.classList.add('hidden');
-            }
-        }
-
-        function previewImage(event) {
-            const input = event.target;
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentUploadedImage = e.target.result;
-                    const img = document.getElementById('imagePreview');
-                    const placeholder = document.getElementById('uploadPlaceholder');
-                    img.src = currentUploadedImage;
-                    img.classList.remove('hidden');
-                    placeholder.classList.add('opacity-0');
-                }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-
-            const editId = document.getElementById('editId').value;
-            const name = document.getElementById('medName').value.trim();
-            const stock = parseInt(document.getElementById('medStock').value) || 0;
-            const price = parseFloat(document.getElementById('medPrice').value) || 0;
-            const expiry = document.getElementById('medExpiry').value;
-            const dosageTiming = document.getElementById('dosageTiming').value;
-            const dailyFrequency = parseInt(document.getElementById('dailyFrequency').value) || 1;
-            const sideEffects = document.getElementById('sideEffects').value.trim();
-
-            const imgPreviewSrc = document.getElementById('imagePreview').src;
-            const imageToUse = (currentUploadedImage || (imgPreviewSrc && !imgPreviewSrc.includes('hidden') ? imgPreviewSrc : 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&q=80&w=600'));
-
-            if (editId) {
-                const index = medicines.findIndex(m => m.id === editId);
-                if (index !== -1) {
-                    medicines[index] = {
-                        ...medicines[index],
-                        name, stock, price, mrp: (price * 1.25).toFixed(2), expiry, dosageTiming, dailyFrequency, sideEffects, image: imageToUse
-                    };
-                    showToast("Medicine Updated Successfully!", "Product catalog updated.");
-                }
-            } else {
-                const newMed = {
-                    id: 'med-' + Date.now(),
-                    name, stock, price, mrp: (price * 1.25).toFixed(2), expiry, dosageTiming, dailyFrequency, sideEffects, image: imageToUse,
-                    likes: 0, views: 0, isLiked: false
-                };
-                medicines.unshift(newMed);
-
-                if (dbClient) {
-                    try {
-                        await dbClient.from('medicines').insert([{
-                            id: newMed.id, name: newMed.name, stock: newMed.stock, price: newMed.price, mrp: newMed.mrp,
-                            expiry: newMed.expiry, dosage_timing: newMed.dosageTiming, daily_frequency: newMed.dailyFrequency,
-                            side_effects: newMed.sideEffects, image: newMed.image, likes: 0, views: 0
-                        }]);
-                    } catch(err) { console.log("Supabase insert note:", err); }
-                }
-
-                showToast("Medicine Saved Successfully!", "Added to inventory catalog.");
-            }
-
-            saveAndRender();
-            toggleModal(false);
-        }
-
-        function editProduct(id) {
-            const med = medicines.find(m => m.id === id);
-            if (!med) return;
-
-            document.getElementById('editId').value = med.id;
-            document.getElementById('medName').value = med.name;
-            document.getElementById('medStock').value = med.stock;
-            document.getElementById('medPrice').value = med.price;
-            document.getElementById('medExpiry').value = med.expiry;
-            document.getElementById('dosageTiming').value = med.dosageTiming;
-            document.getElementById('dailyFrequency').value = med.dailyFrequency;
-            document.getElementById('sideEffects').value = med.sideEffects || '';
-
-            if (med.image) {
-                const img = document.getElementById('imagePreview');
-                img.src = med.image;
-                img.classList.remove('hidden');
-                document.getElementById('uploadPlaceholder').classList.add('opacity-0');
-            }
-
-            document.getElementById('modalTitle').innerHTML = `
-                <i class="fa-solid fa-pen-to-square text-emerald-600"></i>
-                <span>EDIT MEDICINE DETAILS</span>`;
-
-            toggleModal(true, true);
-        }
-
-        async function deleteProduct(id) {
-            if (confirm("Are you sure you want to delete this medicine product?")) {
-                medicines = medicines.filter(m => m.id !== id);
-                
-                if (dbClient) {
-                    try {
-                        await dbClient.from('medicines').delete().eq('id', id);
-                    } catch(err) { console.log("Supabase delete note:", err); }
-                }
-
-                saveAndRender();
-                showToast("Medicine Deleted", "Item removed from inventory catalog.");
             }
         }
 
