@@ -35,7 +35,6 @@
             margin: 0;
             padding: 0;
             overflow-x: hidden;
-            background-color: #ffffff;
         }
 
         .goog-te-banner-frame, 
@@ -54,34 +53,42 @@
             display: none !important;
         }
 
+        .bg-pharmacy {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.12)), url('./landing.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+        }
+
         .glass-panel {
-            background: rgba(255, 255, 255, 0.88);
+            background: rgba(255, 255, 255, 0.45);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.8);
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .glass-card:hover {
-            background: rgba(255, 255, 255, 1);
+            background: rgba(255, 255, 255, 0.95);
             transform: translateY(-4px);
-            box-shadow: 0 12px 28px rgba(0, 102, 204, 0.3);
+            box-shadow: 0 12px 28px rgba(0, 102, 204, 0.2);
             border-color: #0284c7;
         }
 
         .glass-header {
-            background: rgba(255, 255, 255, 0.95);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.5);
         }
 
         .ticker-container {
@@ -113,13 +120,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between relative text-slate-800">
-
-    <!-- Local landing.png Background Image Layer -->
-    <div class="fixed inset-0 w-full h-full -z-10 overflow-hidden pointer-events-none">
-        <img src="landing.png" alt="Pharmacy Background" class="w-full h-full object-cover">
-        <div class="absolute inset-0 bg-white/10"></div>
-    </div>
+<body class="bg-pharmacy min-h-screen flex flex-col justify-between text-slate-800">
 
     <div id="google_translate_element"></div>
     <div id="root"></div>
@@ -129,16 +130,9 @@
 
         const SUPABASE_URL = 'https://vtnykwrkvujsfergxkrc.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_VTPXvhKLIxazMFfcMSoT4w_tPvsrD3Z';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
-        let supabase = null;
-        try {
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-        } catch (err) {
-            console.error("Supabase init error:", err);
-        }
-        
+        // Bharat ki 22 official legal languages + English
         const indianLanguages = [
             { code: 'en', name: 'English' },
             { code: 'hi', name: 'हिंदी (Hindi)' },
@@ -214,7 +208,7 @@
 
             const handleNameChange = (e) => {
                 const value = e.target.value;
-                if (/^[a-zA-Z\s]*$/.test(value)) {
+                if (/^[a-zA-A\s]*$/.test(value)) {
                     setFormData({ ...formData, fullName: value });
                 }
             };
@@ -229,11 +223,6 @@
             const handleAuthSubmit = async (e) => {
                 e.preventDefault();
                 setAlertMsg({ type: '', text: '' });
-
-                if (!supabase) {
-                    setAlertMsg({ type: 'error', text: 'Database client initialize nahi ho paya hai!' });
-                    return;
-                }
 
                 if (formData.mobileNo.length !== 10) {
                     setAlertMsg({ type: 'error', text: 'Kripya ek valid 10-digit mobile number enter karein!' });
@@ -284,6 +273,7 @@
                     }
 
                 } else {
+                    // Login Verification against Database
                     const { data, error } = await supabase
                         .from(tableName)
                         .select('*')
@@ -321,7 +311,7 @@
                             if (selectedRole === 'store') {
                                 window.location.href = 'Medical.html';
                             } else {
-                                window.location.href = 'Customer.html';
+                                window.location.href = 'Customer.html'; // Customer login hone par Customer.html open hoga[cite: 18]
                             }
                         }, 1200);
                     }
